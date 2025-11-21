@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gratitude Journal — Nurture</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+    :root{
+      --muted:#8aa3a0;
+      --accent-1:#dcd5c3; /* beige */
+      --accent-2:#f0d9aa; /* warm */
+      --accent-3:#cfe3e0; /* soft blue */
+      --bg: #fffaf0;
+      --card-bg: rgba(255,255,255,0.7);
+    }
+    html,body{height:100%;margin:0;font-family:Quicksand,system-ui,Arial,Helvetica,sans-serif;background:var(--bg);color:#123; -webkit-font-smoothing:antialiased}
+    .page{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      box-sizing:border-box;
+      background-image: url('/mnt/data/Pink and Blue Simple Aesthetic Gratitude Journal Document A4.png');
+      background-size:cover;
+      background-position:center top;
+      background-repeat:no-repeat;
+    }
+
+    /* translucent form sheet centered over background */
+    .sheet{
+      width:100%;
+      max-width:980px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.9));
+      border-radius:18px;
+      padding:28px;
+      box-shadow: 0 12px 40px rgba(6,12,20,0.09);
+      box-sizing:border-box;
+      backdrop-filter: blur(4px);
+    }
+
+    .title {
+      display:flex;
+      align-items:flex-end;
+      gap:16px;
+      margin-bottom:18px;
+    }
+    .title h1{
+      font-family:'Playfair Display', serif;
+      font-size:48px;
+      margin:0;
+      line-height:0.9;
+      color: #7f9a98;
+      letter-spacing:2px;
+    }
+    .title .sub{
+      font-size:18px;color:var(--muted);margin-bottom:6px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:18px;
+    }
+
+    .field{
+      display:block;
+      margin-bottom:14px;
+    }
+    .label { color:var(--muted); font-weight:600; margin-bottom:6px; font-size:15px; }
+    input[type="text"], textarea {
+      width:100%;
+      border:0;
+      padding:12px 16px;
+      border-radius:14px;
+      font-size:15px;
+      box-sizing:border-box;
+      outline:none;
+      box-shadow: inset 0 0 0 6px rgba(255,255,255,0.6);
+    }
+    /* specific colored pill styles to match the image blocks */
+    .pill-blue{ background: linear-gradient(90deg, rgba(206,227,224,0.95), rgba(206,227,224,0.9)); }
+    .pill-warm{ background: linear-gradient(90deg, rgba(240,217,170,0.95), rgba(240,217,170,0.9)); }
+    .pill-cream{ background: linear-gradient(90deg, rgba(220,213,195,0.95), rgba(220,213,195,0.9)); }
+
+    .three-list .row{
+      display:flex;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .three-list .row input{ flex:1; }
+
+    .two-col{
+      display:flex;
+      gap:12px;
+    }
+    .two-col .col{ flex:1; }
+
+    .actions{ display:flex; gap:10px; align-items:center; margin-top:10px; }
+    .btn{ padding:10px 14px; border-radius:12px; border:0; cursor:pointer; font-weight:700; background:#2d7a78; color:white; }
+    .btn.ghost{ background:transparent; color:#2d7a78; border:1px solid rgba(45,122,120,0.12); font-weight:600; }
+
+    .footer-note{ font-size:13px; color:var(--muted); margin-top:12px; }
+
+    /* right column preview / export */
+    .panel{ background:var(--card-bg); padding:14px; border-radius:12px; box-shadow: 0 8px 20px rgba(9,20,24,0.04); height:100%; display:flex; flex-direction:column; }
+    .preview-box{ flex:1; display:flex; flex-direction:column; gap:10px; overflow:auto; padding-right:4px; }
+    .preview-box .item{ border-radius:12px; padding:10px; font-size:14px; color:#123;}
+    .preview-blue{ background: rgba(207,227,224,0.9); }
+    .preview-warm{ background: rgba(240,217,170,0.9); }
+    .preview-cream{ background: rgba(220,213,195,0.9); }
+
+    .export-actions{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+    .entries-list{ margin-top:12px; max-height:160px; overflow:auto; padding-right:6px; }
+    .entry-row{ padding:8px;border-radius:8px; background: rgba(255,255,255,0.75); margin-bottom:8px; box-shadow: inset 0 -1px 0 rgba(0,0,0,0.02); }
+
+    @media (max-width:900px){
+      .grid{ grid-template-columns:1fr; }
+      .sheet{ padding:16px; }
+      .title h1{ font-size:36px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page" role="main">
+    <div class="sheet" aria-live="polite">
+      <div class="title">
+        <h1>GRATITUDE<br><span style="font-family:Quicksand; font-weight:600; font-size:20px; letter-spacing:1px;">journal</span></h1>
+        <div class="sub">You Matter — Daily reflection</div>
+      </div>
+
+      <div class="grid">
+        <!-- LEFT: form inputs laid out to match the image -->
+        <div>
+          <label class="field">
+            <div class="label">Today's Affirmation</div>
+            <input id="affirm" class="pill-blue" type="text" placeholder="I am...">
+          </label>
+
+          <div class="field three-list">
+            <div class="label">3 Good Things Happened Today</div>
+            <div class="row">
+              <input class="pill-warm" id="good1" type="text" placeholder="1">
+            </div>
+            <div class="row">
+              <input class="pill-warm" id="good2" type="text" placeholder="2">
+            </div>
+            <div class="row">
+              <input class="pill-warm" id="good3" type="text" placeholder="3">
+            </div>
+          </div>
+
+          <div class="field three-list" style="margin-top:6px;">
+            <div class="label">3 Things You are Grateful for Today</div>
+            <div class="row">
+              <input class="pill-cream" id="gr1" type="text" placeholder="1">
+            </div>
+            <div class="row">
+              <input class="pill-cream" id="gr2" type="text" placeholder="2">
+            </div>
+            <div class="row">
+              <input class="pill-cream" id="gr3" type="text" placeholder="3">
+            </div>
+          </div>
+
+          <div class="field two-col">
+            <div class="col">
+              <div class="label">Something I'm Proud of</div>
+              <div class="row">
+                <input class="pill-blue" id="proud1" type="text" placeholder="">
+              </div>
+              <div class="row">
+                <input class="pill-blue" id="proud2" type="text" placeholder="">
+              </div>
+              <div class="row">
+                <input class="pill-blue" id="proud3" type="text" placeholder="">
+              </div>
+            </div>
+            <div class="col">
+              <div class="label">Tomorrow I Look Forward To</div>
+              <div class="row">
+                <input class="pill-warm" id="tom1" type="text" placeholder="">
+              </div>
+              <div class="row">
+                <input class="pill-warm" id="tom2" type="text" placeholder="">
+              </div>
+              <div class="row">
+                <input class="pill-warm" id="tom3" type="text" placeholder="">
+              </div>
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:8px;">
+            <div class="label">Note / Reminder</div>
+            <textarea id="note" class="pill-warm" placeholder="Write any note or reminder..." rows="4"></textarea>
+          </div>
+
+          <div class="actions">
+            <button id="saveBtn" class="btn">Save Entry</button>
+            <button id="clearBtn" class="btn ghost">New</button>
+            <div style="flex:1"></div>
+            <button id="exportBtn" class="btn ghost">Export (.json)</button>
+            <button id="importBtn" class="btn ghost">Import</button>
+            <input id="fileInput" type="file" accept=".json" style="display:none" />
+          </div>
+
+          <div class="footer-note">Tip: Your entries are stored only on this device. Use Export to backup or send after payment.</div>
+        </div>
+
+        <!-- RIGHT: preview & export panel -->
+        <aside class="panel" aria-label="Export and saved entries">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <strong style="font-size:15px">Preview</strong>
+            <div class="meta" style="color:var(--muted);font-size:13px">Saved entries</div>
+          </div>
+
+          <div class="preview-box" id="previewBox">
+            <div class="item preview-blue">Affirmation — <span id="pAff">—</span></div>
+            <div class="item preview-warm">Good things — <span id="pGood">—</span></div>
+            <div class="item preview-cream">Grateful for — <span id="pGr">—</span></div>
+            <div class="item preview-blue">Proud of — <span id="pProud">—</span></div>
+            <div class="item preview-warm">Tomorrow — <span id="pTom">—</span></div>
+          </div>
+
+          <div class="export-actions" style="margin-top:10px">
+            <button id="exportAllBtn" class="btn ghost">Export All</button>
+            <button id="clearAllBtn" class="btn ghost">Clear Local</button>
+          </div>
+
+          <div class="entries-list" id="entriesList" aria-live="polite"></div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Simple IndexedDB wrapper
+    function openDb(dbName='journalDB_v2', store='entries') {
+      return new Promise((res, rej) => {
+        const rq = indexedDB.open(dbName, 1);
+        rq.onupgradeneeded = e => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(store)) db.createObjectStore(store, { keyPath: 'id' });
+        };
+        rq.onsuccess = e => res({ db: e.target.result, store });
+        rq.onerror = e => rej(e);
+      });
+    }
+
+    async function putEntry(entry) {
+      const { db, store } = await openDb();
+      return new Promise((res, rej) => {
+        const tx = db.transaction(store, 'readwrite');
+        tx.objectStore(store).put(entry);
+        tx.oncomplete = () => res(true);
+        tx.onerror = e => rej(e);
+      });
+    }
+
+    async function getAll() {
+      const { db, store } = await openDb();
+      return new Promise((res, rej) => {
+        const tx = db.transaction(store, 'readonly');
+        const rq = tx.objectStore(store).getAll();
+        rq.onsuccess = () => res(rq.result || []);
+        rq.onerror = e => rej(e);
+      });
+    }
+
+    async function clearAllLocal() {
+      const { db, store } = await openDb();
+      return new Promise((res, rej) => {
+        const tx = db.transaction(store, 'readwrite');
+        tx.objectStore(store).clear();
+        tx.oncomplete = () => res(true);
+        tx.onerror = e => rej(e);
+      });
+    }
+
+    // DOM refs
+    const affirm = document.getElementById('affirm');
+    const good1 = document.getElementById('good1');
+    const good2 = document.getElementById('good2');
+    const good3 = document.getElementById('good3');
+    const gr1 = document.getElementById('gr1');
+    const gr2 = document.getElementById('gr2');
+    const gr3 = document.getElementById('gr3');
+    const proud1 = document.getElementById('proud1');
+    const proud2 = document.getElementById('proud2');
+    const proud3 = document.getElementById('proud3');
+    const tom1 = document.getElementById('tom1');
+    const tom2 = document.getElementById('tom2');
+    const tom3 = document.getElementById('tom3');
+    const note = document.getElementById('note');
+
+    const saveBtn = document.getElementById('saveBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const importBtn = document.getElementById('importBtn');
+    const fileInput = document.getElementById('fileInput');
+    const previewBox = document.getElementById('previewBox');
+    const pAff = document.getElementById('pAff');
+    const pGood = document.getElementById('pGood');
+    const pGr = document.getElementById('pGr');
+    const pProud = document.getElementById('pProud');
+    const pTom = document.getElementById('pTom');
+    const entriesList = document.getElementById('entriesList');
+    const exportAllBtn = document.getElementById('exportAllBtn');
+    const clearAllBtn = document.getElementById('clearAllBtn');
+
+    function readForm() {
+      return {
+        id: Date.now().toString(),
+        createdAt: new Date().toISOString(),
+        affirmation: affirm.value.trim(),
+        good: [good1.value.trim(), good2.value.trim(), good3.value.trim()].filter(Boolean),
+        grateful: [gr1.value.trim(), gr2.value.trim(), gr3.value.trim()].filter(Boolean),
+        proud: [proud1.value.trim(), proud2.value.trim(), proud3.value.trim()].filter(Boolean),
+        tomorrow: [tom1.value.trim(), tom2.value.trim(), tom3.value.trim()].filter(Boolean),
+        note: note.value.trim()
+      };
+    }
+
+    async function saveEntry() {
+      const obj = readForm();
+      if (!(obj.affirmation || obj.good.length || obj.grateful.length || obj.proud.length || obj.tomorrow.length || obj.note)) {
+        return alert('Please add at least one item before saving.');
+      }
+      await putEntry(obj);
+      resetForm();
+      await refreshPreview();
+    }
+
+    function resetForm() {
+      affirm.value=''; good1.value=''; good2.value=''; good3.value=''; gr1.value=''; gr2.value=''; gr3.value='';
+      proud1.value=''; proud2.value=''; proud3.value=''; tom1.value=''; tom2.value=''; tom3.value=''; note.value='';
+    }
+
+    async function refreshPreview() {
+      const all = await getAll();
+      // show latest
+      const latest = all.sort((a,b)=>b.createdAt.localeCompare(a.createdAt))[0];
+      if (!latest) {
+        pAff.textContent='—'; pGood.textContent='—'; pGr.textContent='—'; pProud.textContent='—'; pTom.textContent='—';
+      } else {
+        pAff.textContent = latest.affirmation || '—';
+        pGood.textContent = latest.good.join(' · ') || '—';
+        pGr.textContent = latest.grateful.join(' · ') || '—';
+        pProud.textContent = latest.proud.join(' · ') || '—';
+        pTom.textContent = latest.tomorrow.join(' · ') || '—';
+      }
+
+      // entries list (show last 8)
+      entriesList.innerHTML = '';
+      all.sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).slice(0,8).forEach(e=>{
+        const div = document.createElement('div');
+        div.className='entry-row';
+        div.innerHTML = `<strong style="display:block;margin-bottom:6px">${new Date(e.createdAt).toLocaleString()}</strong>
+                         <div style="font-size:13px;color:#214">${e.affirmation ? `<div><em>Affirmation:</em> ${escapeHtml(e.affirmation)}</div>` : '' }
+                         ${e.good && e.good.length ? `<div><em>Good:</em> ${escapeHtml(e.good.join(' · '))}</div>` : ''}
+                         ${e.grateful && e.grateful.length ? `<div><em>Grateful:</em> ${escapeHtml(e.grateful.join(' · '))}</div>` : ''}</div>
+                         <div style="margin-top:8px"><button data-id="${e.id}" class="btn ghost restoreBtn">Restore</button> <button data-id="${e.id}" class="btn ghost deleteBtn">Delete</button></div>`;
+        entriesList.appendChild(div);
+      });
+
+      // attach handlers
+      document.querySelectorAll('.restoreBtn').forEach(b=>b.onclick = async function(){
+        const id = this.getAttribute('data-id');
+        const all = await getAll();
+        const e = all.find(x=>x.id===id);
+        if (e) {
+          // restore into form
+          affirm.value = e.affirmation || '';
+          good1.value = e.good[0] || ''; good2.value = e.good[1] || ''; good3.value = e.good[2] || '';
+          gr1.value = e.grateful[0] || ''; gr2.value = e.grateful[1] || ''; gr3.value = e.grateful[2] || '';
+          proud1.value = e.proud[0] || ''; proud2.value = e.proud[1] || ''; proud3.value = e.proud[2] || '';
+          tom1.value = e.tomorrow[0] || ''; tom2.value = e.tomorrow[1] || ''; tom3.value = e.tomorrow[2] || '';
+          note.value = e.note || '';
+          window.scrollTo({top:0,behavior:'smooth'});
+        }
+      });
+
+      document.querySelectorAll('.deleteBtn').forEach(b=>b.onclick = async function(){
+        const id = this.getAttribute('data-id');
+        if (!confirm('Delete this entry?')) return;
+        const { db, store } = await openDb();
+        const tx = db.transaction(store,'readwrite');
+        tx.objectStore(store).delete(id);
+        tx.oncomplete = async ()=> { await refreshPreview(); };
+      });
+    }
+
+    // export/import
+    exportAllBtn.addEventListener('click', async ()=> {
+      const all = await getAll();
+      const blob = new Blob([JSON.stringify({ exportedAt:new Date().toISOString(), data: all }, null, 2)], { type:'application/json' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'gratitude-journal-export.json'; a.click(); URL.revokeObjectURL(a.href);
+    });
+
+    exportBtn.addEventListener('click', async ()=> {
+      // single-entry quick export from form (useful to send to a buyer)
+      const obj = readForm();
+      if (!(obj.affirmation || obj.good.length || obj.grateful.length || obj.proud.length || obj.tomorrow.length || obj.note)) {
+        return alert('Add something first or use Export All.');
+      }
+      const blob = new Blob([JSON.stringify({ exportedAt:new Date().toISOString(), data: [obj] }, null, 2)], { type:'application/json' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'gratitude-entry.json'; a.click(); URL.revokeObjectURL(a.href);
+    });
+
+    clearBtn.addEventListener('click', ()=>resetForm());
+    clearAllBtn.addEventListener('click', async ()=> {
+      if (!confirm('Clear all local entries? This cannot be undone.')) return;
+      await clearAllLocal();
+      await refreshPreview();
+    });
+
+    importBtn.addEventListener('click', ()=> fileInput.click());
+    fileInput.addEventListener('change', async (ev)=>{
+      const f = ev.target.files[0];
+      if (!f) return;
+      try {
+        const txt = await f.text();
+        const parsed = JSON.parse(txt);
+        if (!parsed || !Array.isArray(parsed.data)) {
+          alert('Invalid file format. Expected exported file from this app.');
+          return;
+        }
+        for (const e of parsed.data) {
+          const entry = {...e};
+          if (!entry.id) entry.id = Date.now().toString() + Math.floor(Math.random()*1000);
+          await putEntry(entry);
+        }
+        alert('Import complete.');
+        await refreshPreview();
+      } catch(err) {
+        console.error(err);
+        alert('Import failed. Check file.');
+      } finally {
+        fileInput.value='';
+      }
+    });
+
+    // helpers
+    function escapeHtml(s){ if(!s) return ''; return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('\\n','<br/>'); }
+
+    // initial
+    saveBtn.addEventListener('click', saveEntry);
+    (async ()=>{ await refreshPreview(); })();
+  </script>
+</body>
+</html>

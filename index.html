@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gratitude Journal — Nurture</title>
+  <meta name="description" content="Responsive gratitude journal — local-first" />
+  <style>
+    @layer reset {
+      *,*::before,*::after{box-sizing:border-box}
+      html,body{height:100%;margin:0}
+      img{max-width:100%;display:block}
+      button{font-family:inherit}
+    }
+
+    :root{
+      --muted:#6f8b88;
+      --accent-1:#dcd5c3;
+      --accent-2:#f0d9aa;
+      --accent-3:#cfe3e0;
+      --bg:#fffaf0;
+      --card:rgba(255,255,255,0.92);
+      --primary:#2b7c79;
+      --radius:14px;
+    }
+
+    body{
+      font-family: "Quicksand", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background:var(--bg);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      color:#0f1724;
+    }
+
+    /* Page background using uploaded image path (hosting will convert to URL) */
+    .page {
+      min-height:100vh;
+      padding:18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background-image: url('/mnt/data/Pink and Blue Simple Aesthetic Gratitude Journal Document A4.png');
+      background-repeat:no-repeat;
+      background-position:center top;
+      background-size:cover;
+    }
+
+    /* translucent sheet that adapts */
+    .sheet{
+      width:100%;
+      max-width:1100px;
+      margin:auto;
+      background: linear-gradient(180deg,var(--card),rgba(255,255,255,0.98));
+      border-radius:20px;
+      padding:18px;
+      box-shadow: 0 12px 40px rgba(6,12,20,0.06);
+      backdrop-filter: blur(6px);
+      overflow:hidden;
+    }
+
+    /* header */
+    .head{
+      display:flex;
+      gap:12px;
+      align-items:end;
+      justify-content:space-between;
+      margin-bottom:10px;
+      padding:6px 2px;
+    }
+    .title{
+      font-family: "Playfair Display", serif;
+      font-size:34px;
+      line-height:1;
+      color:#7f9a98;
+      margin:0;
+    }
+    .tag{
+      font-size:13px;color:var(--muted);
+    }
+
+    /* grid adapts: single column on mobile, 2 column on larger screens */
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:14px;
+    }
+
+    /* input styles (large clickable areas) */
+    .field{ display:block; }
+    .label{ font-size:14px; color:var(--muted); margin-bottom:8px; font-weight:600 }
+    input[type="text"], textarea{
+      width:100%;
+      padding:12px 14px;
+      border-radius:12px;
+      border:0;
+      font-size:15px;
+      outline:none;
+      box-shadow: inset 0 0 0 6px rgba(255,255,255,0.6);
+      background:rgba(255,255,255,0.6);
+    }
+
+    /* pill color classes to match image look */
+    .pill-blue{ background: linear-gradient(90deg, rgba(206,227,224,0.95), rgba(206,227,224,0.9)); }
+    .pill-warm{ background: linear-gradient(90deg, rgba(240,217,170,0.95), rgba(240,217,170,0.9)); }
+    .pill-cream{ background: linear-gradient(90deg, rgba(220,213,195,0.95), rgba(220,213,195,0.9)); }
+
+    .list-rows{ display:flex; flex-direction:column; gap:8px; }
+
+    /* actions */
+    .actions{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px; }
+    .btn{
+      background:var(--primary);
+      color:white;
+      border:0;
+      padding:12px 14px;
+      border-radius:12px;
+      font-weight:700;
+      cursor:pointer;
+      min-height:44px;
+    }
+    .btn.ghost{ background:transparent; color:var(--primary); border:1px solid rgba(43,124,121,0.12); font-weight:700; }
+
+    /* right panel */
+    .panel{
+      background:transparent;
+      border-radius:12px;
+      padding:6px;
+    }
+    .preview{
+      background:rgba(255,255,255,0.6);
+      border-radius:12px;
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      min-height:140px;
+    }
+    .preview .row{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
+    .small{ font-size:13px;color:var(--muted) }
+
+    .entries-list{ margin-top:10px; max-height:220px; overflow:auto; padding-right:6px; display:flex; flex-direction:column; gap:8px; }
+
+    .entry-row{ background:rgba(255,255,255,0.85); padding:10px; border-radius:10px; font-size:13px; box-shadow:inset 0 -1px 0 rgba(0,0,0,0.02); }
+
+    /* desktop layout: two columns */
+    @media (min-width:900px){
+      .grid{ grid-template-columns: 1fr 360px; align-items:start; }
+      .head{ margin-bottom:18px }
+      .title{ font-size:48px }
+    }
+
+    /* mobile optimisations */
+    @media (max-width:480px){
+      .sheet{ padding:14px; border-radius:16px;}
+      .title{ font-size:28px }
+      input[type="text"], textarea{ padding:14px; font-size:16px; border-radius:12px; }
+      .btn{ padding:12px 12px; min-height:48px; width:100%; }
+      .actions{ flex-direction:column-reverse; align-items:stretch; }
+      .preview{ min-height:120px; padding:10px }
+      .entries-list{ max-height:140px }
+    }
+
+    /* visual helpers */
+    .muted{ color:var(--muted); font-size:13px }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <main class="sheet" role="main" aria-label="Gratitude Journal">
+      <header class="head">
+        <div>
+          <h1 class="title">GRATITUDE <span style="display:block;font-size:18px;font-family:Quicksand;font-weight:700;color:var(--muted);margin-top:6px">journal</span></h1>
+        </div>
+        <div class="tag muted">You Matter — Daily reflection</div>
+      </header>
+
+      <div class="grid">
+        <!-- left: form -->
+        <section>
+          <label class="field">
+            <div class="label">Today's Affirmation</div>
+            <input id="affirm" class="pill-blue" type="text" placeholder="I am..." autocomplete="off" />
+          </label>
+
+          <div class="field">
+            <div class="label">3 Good Things Happened Today</div>
+            <div class="list-rows">
+              <input id="good1" class="pill-warm" type="text" placeholder="1" autocomplete="off" />
+              <input id="good2" class="pill-warm" type="text" placeholder="2" autocomplete="off" />
+              <input id="good3" class="pill-warm" type="text" placeholder="3" autocomplete="off" />
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:8px;">
+            <div class="label">3 Things You are Grateful for Today</div>
+            <div class="list-rows">
+              <input id="gr1" class="pill-cream" type="text" placeholder="1" autocomplete="off" />
+              <input id="gr2" class="pill-cream" type="text" placeholder="2" autocomplete="off" />
+              <input id="gr3" class="pill-cream" type="text" placeholder="3" autocomplete="off" />
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:8px;">
+            <div class="label">Something I'm Proud of</div>
+            <div class="list-rows">
+              <input id="proud1" class="pill-blue" type="text" placeholder="" autocomplete="off" />
+              <input id="proud2" class="pill-blue" type="text" placeholder="" autocomplete="off" />
+              <input id="proud3" class="pill-blue" type="text" placeholder="" autocomplete="off" />
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:8px;">
+            <div class="label">Tomorrow I Look Forward To</div>
+            <div class="list-rows">
+              <input id="tom1" class="pill-warm" type="text" placeholder="" autocomplete="off" />
+              <input id="tom2" class="pill-warm" type="text" placeholder="" autocomplete="off" />
+              <input id="tom3" class="pill-warm" type="text" placeholder="" autocomplete="off" />
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:8px;">
+            <div class="label">Note / Reminder</div>
+            <textarea id="note" rows="4" class="pill-warm" placeholder="Write any note or reminder..."></textarea>
+          </div>
+
+          <div class="actions" style="margin-top:10px;">
+            <button id="saveBtn" class="btn">Save Entry</button>
+            <button id="clearBtn" class="btn ghost">New</button>
+            <div style="flex:1"></div>
+            <button id="exportBtn" class="btn ghost">Export (.json)</button>
+            <button id="importBtn" class="btn ghost">Import</button>
+            <input id="fileInput" type="file" accept=".json" style="display:none" />
+          </div>
+
+          <div style="margin-top:10px" class="muted">Tip: Data stays on this device. Use Export to backup or send after payment.</div>
+        </section>
+
+        <!-- right: preview & entries -->
+        <aside class="panel" aria-labelledby="preview-heading">
+          <div class="preview" id="preview">
+            <div class="row"><div class="muted">Latest — Affirmation</div><div id="pAff" class="muted">—</div></div>
+            <div class="row"><div class="muted">Good things</div><div id="pGood" class="muted">—</div></div>
+            <div class="row"><div class="muted">Grateful for</div><div id="pGr" class="muted">—</div></div>
+            <div class="row"><div class="muted">Proud of</div><div id="pProud" class="muted">—</div></div>
+            <div class="row"><div class="muted">Tomorrow</div><div id="pTom" class="muted">—</div></div>
+          </div>
+
+          <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+            <button id="exportAllBtn" class="btn ghost">Export All</button>
+            <button id="clearAllBtn" class="btn ghost">Clear Local</button>
+          </div>
+
+          <div class="entries-list" id="entriesList" aria-live="polite"></div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    /* IndexedDB helpers */
+    function openDb(dbName='journalDB_v3', store='entries') {
+      return new Promise((res,rej)=>{
+        const rq = indexedDB.open(dbName,1);
+        rq.onupgradeneeded = e => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(store)) db.createObjectStore(store,{ keyPath:'id' });
+        };
+        rq.onsuccess = e => res({ db:e.target.result, store });
+        rq.onerror = e => rej(e);
+      });
+    }
+    async function putEntry(entry){
+      const { db, store } = await openDb();
+      return new Promise((res,rej)=>{
+        const tx = db.transaction(store,'readwrite');
+        tx.objectStore(store).put(entry);
+        tx.oncomplete = ()=>res(true);
+        tx.onerror = e => rej(e);
+      });
+    }
+    async function getAll(){
+      const { db, store } = await openDb();
+      return new Promise((res,rej)=>{
+        const tx = db.transaction(store,'readonly');
+        const rq = tx.objectStore(store).getAll();
+        rq.onsuccess = ()=>res(rq.result||[]);
+        rq.onerror = e => rej(e);
+      });
+    }
+    async function clearAllLocal(){
+      const { db, store } = await openDb();
+      return new Promise((res,rej)=>{
+        const tx = db.transaction(store,'readwrite');
+        tx.objectStore(store).clear();
+        tx.oncomplete = ()=>res(true);
+        tx.onerror = e => rej(e);
+      });
+    }
+
+    // DOM refs
+    const affirm = document.getElementById('affirm');
+    const good1 = document.getElementById('good1');
+    const good2 = document.getElementById('good2');
+    const good3 = document.getElementById('good3');
+    const gr1 = document.getElementById('gr1');
+    const gr2 = document.getElementById('gr2');
+    const gr3 = document.getElementById('gr3');
+    const proud1 = document.getElementById('proud1');
+    const proud2 = document.getElementById('proud2');
+    const proud3 = document.getElementById('proud3');
+    const tom1 = document.getElementById('tom1');
+    const tom2 = document.getElementById('tom2');
+    const tom3 = document.getElementById('tom3');
+    const note = document.getElementById('note');
+
+    const saveBtn = document.getElementById('saveBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const importBtn = document.getElementById('importBtn');
+    const fileInput = document.getElementById('fileInput');
+
+    const pAff = document.getElementById('pAff');
+    const pGood = document.getElementById('pGood');
+    const pGr = document.getElementById('pGr');
+    const pProud = document.getElementById('pProud');
+    const pTom = document.getElementById('pTom');
+    const entriesList = document.getElementById('entriesList');
+    const exportAllBtn = document.getElementById('exportAllBtn');
+    const clearAllBtn = document.getElementById('clearAllBtn');
+
+    function readForm(){
+      return {
+        id: Date.now().toString(),
+        createdAt: new Date().toISOString(),
+        affirmation: affirm.value.trim(),
+        good: [good1.value.trim(), good2.value.trim(), good3.value.trim()].filter(Boolean),
+        grateful: [gr1.value.trim(), gr2.value.trim(), gr3.value.trim()].filter(Boolean),
+        proud: [proud1.value.trim(), proud2.value.trim(), proud3.value.trim()].filter(Boolean),
+        tomorrow: [tom1.value.trim(), tom2.value.trim(), tom3.value.trim()].filter(Boolean),
+        note: note.value.trim()
+      };
+    }
+
+    async function saveEntry(){
+      const e = readForm();
+      if (!(e.affirmation || e.good.length || e.grateful.length || e.proud.length || e.tomorrow.length || e.note)) {
+        return alert('Please enter something before saving.');
+      }
+      await putEntry(e);
+      resetForm();
+      await refreshUI();
+    }
+
+    function resetForm(){
+      affirm.value=''; good1.value=''; good2.value=''; good3.value='';
+      gr1.value=''; gr2.value=''; gr3.value='';
+      proud1.value=''; proud2.value=''; proud3.value='';
+      tom1.value=''; tom2.value=''; tom3.value='';
+      note.value='';
+    }
+
+    async function refreshUI(){
+      const all = await getAll();
+      const latest = all.sort((a,b)=>b.createdAt.localeCompare(a.createdAt))[0];
+      if (!latest) {
+        pAff.textContent='—'; pGood.textContent='—'; pGr.textContent='—'; pProud.textContent='—'; pTom.textContent='—';
+      } else {
+        pAff.textContent = latest.affirmation || '—';
+        pGood.textContent = latest.good.join(' · ') || '—';
+        pGr.textContent = latest.grateful.join(' · ') || '—';
+        pProud.textContent = latest.proud.join(' · ') || '—';
+        pTom.textContent = latest.tomorrow.join(' · ') || '—';
+      }
+
+      entriesList.innerHTML='';
+      all.sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).slice(0,12).forEach(e=>{
+        const div = document.createElement('div');
+        div.className='entry-row';
+        div.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><strong style="font-size:13px">${new Date(e.createdAt).toLocaleString()}</strong>
+                         <div><button data-id="${e.id}" class="restoreBtn" style="background:transparent;border:0;color:var(--primary);font-weight:700;cursor:pointer">Restore</button>
+                         <button data-id="${e.id}" class="delBtn" style="background:transparent;border:0;color:#c33;font-weight:700;cursor:pointer;margin-left:6px">Delete</button></div></div>
+                         <div style="margin-top:6px;font-size:13px;color:#214">${e.affirmation ? `<div><em>Affirmation:</em> ${escapeHtml(e.affirmation)}</div>` : '' }
+                         ${e.good && e.good.length ? `<div><em>Good:</em> ${escapeHtml(e.good.join(' · '))}</div>` : ''}
+                         ${e.grateful && e.grateful.length ? `<div><em>Grateful:</em> ${escapeHtml(e.grateful.join(' · '))}</div>` : ''}</div>`;
+        entriesList.appendChild(div);
+      });
+
+      document.querySelectorAll('.restoreBtn').forEach(b => b.onclick = async function(){
+        const id = this.dataset.id;
+        const all = await getAll();
+        const item = all.find(x=>x.id===id);
+        if (item) {
+          affirm.value = item.affirmation || '';
+          good1.value = item.good[0] || ''; good2.value = item.good[1] || ''; good3.value = item.good[2] || '';
+          gr1.value = item.grateful[0] || ''; gr2.value = item.grateful[1] || ''; gr3.value = item.grateful[2] || '';
+          proud1.value = item.proud[0] || ''; proud2.value = item.proud[1] || ''; proud3.value = item.proud[2] || '';
+          tom1.value = item.tomorrow[0] || ''; tom2.value = item.tomorrow[1] || ''; tom3.value = item.tomorrow[2] || '';
+          note.value = item.note || '';
+          window.scrollTo({top:0,behavior:'smooth'});
+        }
+      });
+
+      document.querySelectorAll('.delBtn').forEach(b => b.onclick = async function(){
+        const id = this.dataset.id;
+        if (!confirm('Delete this entry?')) return;
+        const { db, store } = await openDb();
+        const tx = db.transaction(store,'readwrite');
+        tx.objectStore(store).delete(id);
+        tx.oncomplete = async ()=> refreshUI();
+      });
+    }
+
+    // export/import handlers
+    exportAllBtn.addEventListener('click', async ()=>{
+      const all = await getAll();
+      const blob = new Blob([JSON.stringify({ exportedAt:new Date().toISOString(), data: all }, null, 2)], { type:'application/json' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'gratitude-journal-export.json'; a.click(); URL.revokeObjectURL(a.href);
+    });
+
+    exportBtn.addEventListener('click', async ()=>{
+      const obj = readForm();
+      if (!(obj.affirmation || obj.good.length || obj.grateful.length || obj.proud.length || obj.tomorrow.length || obj.note)) {
+        return alert('Add something first or use Export All.');
+      }
+      const blob = new Blob([JSON.stringify({ exportedAt:new Date().toISOString(), data: [obj] }, null, 2)], { type:'application/json' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'gratitude-entry.json'; a.click(); URL.revokeObjectURL(a.href);
+    });
+
+    importBtn.addEventListener('click', ()=> fileInput.click());
+    fileInput.addEventListener('change', async (ev) => {
+      const f = ev.target.files[0];
+      if (!f) return;
+      try {
+        const txt = await f.text();
+        const parsed = JSON.parse(txt);
+        if (!parsed || !Array.isArray(parsed.data)) { alert('Invalid file format.'); return; }
+        for (const e of parsed.data) {
+          const entry = {...e};
+          if (!entry.id) entry.id = Date.now().toString() + Math.floor(Math.random()*1000);
+          await putEntry(entry);
+        }
+        alert('Import complete');
+        await refreshUI();
+      } catch (err) {
+        console.error(err); alert('Import failed. Ensure file came from this app.');
+      } finally { fileInput.value=''; }
+    });
+
+    clearBtn.addEventListener('click', resetForm);
+    clearAllBtn.addEventListener('click', async ()=>{
+      if (!confirm('Clear all local entries? This cannot be undone.')) return;
+      await clearAllLocal(); await refreshUI();
+    });
+
+    saveBtn.addEventListener('click', saveEntry);
+    // initialise
+    (async ()=>{ await refreshUI(); })();
+
+    // tiny escape
+    function escapeHtml(s){ if(!s) return ''; return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('\\n','<br/>'); }
+  </script>
+</body>
+</html>

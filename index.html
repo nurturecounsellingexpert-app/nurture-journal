@@ -126,18 +126,36 @@ async function sha256(text){
 async function login(){
   const u = username.value.trim();
   const p = password.value.trim();
-  if(!u || !p) return loginError.innerText="Enter credentials";
+
+  if(!u || !p){
+    loginError.innerText = "Enter credentials";
+    return;
+  }
 
   const res = await fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"login",
-      username:u,
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      action: "login",
+      username: u,
       passwordHash: await sha256(p)
     })
   });
 
   const data = await res.json();
+
+  if(!data.success){
+    loginError.innerText = "Invalid login";
+    return;
+  }
+
+  currentUser = u;
+  loginBox.style.display = "none";
+  journal.style.display = "block";
+}
+
   if(!data.success){
     loginError.innerText="Invalid login";
     return;
@@ -171,12 +189,15 @@ async function saveEntry(){
 
   /* CHECK LIMIT */
   const r = await fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"canAddEntry",
-      username:currentUser
-    })
-  });
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    action: "canAddEntry",
+    username: currentUser
+  })
+});
   const d = await r.json();
   if(!d.allowed){
     alert("You have reached your entry limit. Please upgrade.");

@@ -38,12 +38,13 @@ body{
   font-weight:700;
   cursor:pointer;
 }
+#loginError{ color:red; }
 
 /* JOURNAL */
 #journal{
   display:none;
   padding:30px;
-  max-width:1000px;
+  max-width:900px;
   margin:auto;
 }
 label{font-weight:700;color:#567;}
@@ -76,12 +77,11 @@ button.action{
   <input id="username" placeholder="Username">
   <input id="password" type="password" placeholder="Password">
   <button onclick="login()">Login</button>
-  <p id="loginError" style="color:red;"></p>
+  <p id="loginError"></p>
 </div>
 
 <!-- JOURNAL -->
 <div id="journal">
-
 <h1>Gratitude Journal</h1>
 
 <label>Today's Affirmation</label>
@@ -107,15 +107,14 @@ button.action{
 <div class="footer">
   Your entries are stored only on this device. Nothing is uploaded.
 </div>
-
 </div>
 
 <script>
-/* ================= BACKEND ================= */
+/* ================= CONFIG ================= */
 const API_URL = "https://script.google.com/macros/s/AKfycbyWGuraxQKEe_pNSY8vYMmnTW6Cst5CQtd1y_NXxw3_61tOXRm7ox4L-BpP1UzYTxuU/exec";
 let currentUser = null;
 
-/* HASH */
+/* ================= PASSWORD HASH ================= */
 async function sha256(text){
   const buf = new TextEncoder().encode(text);
   const hash = await crypto.subtle.digest("SHA-256", buf);
@@ -124,46 +123,46 @@ async function sha256(text){
     .join("");
 }
 
-/* LOGIN */
+/* ================= LOGIN ================= */
 async function login(){
-  const u = document.getElementById("username").value.trim();
-  const p = document.getElementById("password").value.trim();
-  const err = document.getElementById("loginError");
+  const u = username.value.trim();
+  const p = password.value.trim();
+  loginError.innerText = "";
 
   if(!u || !p){
-    err.innerText = "Enter username and password";
+    loginError.innerText = "Enter username and password";
     return;
   }
 
-  const res = await fetch(API_URL,{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({
-      action:"login",
-      username:u,
-      passwordHash: await sha256(p)
-    })
-  });
+  const form = new FormData();
+  form.append("action","login");
+  form.append("username",u);
+  form.append("passwordHash", await sha256(p));
 
-  const data = await res.json();
+  try{
+    const res = await fetch(API_URL,{ method:"POST", body:form });
+    const data = await res.json();
 
-  if(!data.success){
-    err.innerText = "Invalid login";
-    return;
+    if(!data.success){
+      loginError.innerText = "Invalid login";
+      return;
+    }
+
+    currentUser = u;
+    loginBox.style.display = "none";
+    journal.style.display = "block";
+  }catch(err){
+    console.error(err);
+    alert("Login failed");
   }
-
-  currentUser = u;
-  document.getElementById("loginBox").style.display = "none";
-  document.getElementById("journal").style.display = "block";
 }
 
-/* ================= LOCAL STORAGE (IndexedDB) ================= */
+/* ================= LOCAL STORAGE ================= */
 function openDb(){
   return new Promise((res,rej)=>{
     const r = indexedDB.open("journalDB",1);
-    r.onupgradeneeded = e => {
-      e.target.result.createObjectStore("entries",{ keyPath:"id" });
-    };
+    r.onupgradeneeded = e =>
+      e.target.result.createObjectStore("entries",{keyPath:"id"});
     r.onsuccess = e => res(e.target.result);
     r.onerror = e => rej(e);
   });
@@ -177,21 +176,15 @@ async function saveLocal(entry){
 
 /* ================= SAVE ENTRY ================= */
 async function saveEntry(){
+  const form = new FormData();
+  form.append("action","canAddEntry");
+  form.append("username",currentUser);
 
-  /* CHECK ENTRY LIMIT */
-  const r = await fetch(API_URL,{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({
-      action:"canAddEntry",
-      username: currentUser
-    })
-  });
-
+  const r = await fetch(API_URL,{ method:"POST", body:form });
   const d = await r.json();
 
   if(!d.allowed){
-    alert("You have reached your entry limit. Please upgrade.");
+    alert("Entry limit reached. Please upgrade.");
     return;
   }
 
@@ -206,7 +199,7 @@ async function saveEntry(){
     note: note.value
   };
 
-  if(!Object.values(entry).some(v => Array.isArray(v) ? v.length : v)){
+  if(!Object.values(entry).some(v=>Array.isArray(v)?v.length:v)){
     alert("Add something before saving");
     return;
   }

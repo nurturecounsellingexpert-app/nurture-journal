@@ -119,27 +119,28 @@ let currentUser = null;
 async function sha256(text){
   const buf = new TextEncoder().encode(text);
   const hash = await crypto.subtle.digest("SHA-256", buf);
-  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,"0")).join("");
+  return Array.from(new Uint8Array(hash))
+    .map(b => b.toString(16).padStart(2,"0"))
+    .join("");
 }
 
 /* LOGIN */
 async function login(){
-  const u = username.value.trim();
-  const p = password.value.trim();
+  const u = document.getElementById("username").value.trim();
+  const p = document.getElementById("password").value.trim();
+  const err = document.getElementById("loginError");
 
   if(!u || !p){
-    loginError.innerText = "Enter credentials";
+    err.innerText = "Enter username and password";
     return;
   }
 
   const res = await fetch(API_URL,{
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
     body: JSON.stringify({
-      action: "login",
-      username: u,
+      action:"login",
+      username:u,
       passwordHash: await sha256(p)
     })
   });
@@ -147,34 +148,24 @@ async function login(){
   const data = await res.json();
 
   if(!data.success){
-    loginError.innerText = "Invalid login";
+    err.innerText = "Invalid login";
     return;
   }
 
   currentUser = u;
-  loginBox.style.display = "none";
-  journal.style.display = "block";
-}
-
-  if(!data.success){
-    loginError.innerText="Invalid login";
-    return;
-  }
-
-  currentUser = u;
-  loginBox.style.display="none";
-  journal.style.display="block";
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("journal").style.display = "block";
 }
 
 /* ================= LOCAL STORAGE (IndexedDB) ================= */
 function openDb(){
   return new Promise((res,rej)=>{
     const r = indexedDB.open("journalDB",1);
-    r.onupgradeneeded=e=>{
-      e.target.result.createObjectStore("entries",{keyPath:"id"});
+    r.onupgradeneeded = e => {
+      e.target.result.createObjectStore("entries",{ keyPath:"id" });
     };
-    r.onsuccess=e=>res(e.target.result);
-    r.onerror=e=>rej(e);
+    r.onsuccess = e => res(e.target.result);
+    r.onerror = e => rej(e);
   });
 }
 
@@ -187,18 +178,18 @@ async function saveLocal(entry){
 /* ================= SAVE ENTRY ================= */
 async function saveEntry(){
 
-  /* CHECK LIMIT */
+  /* CHECK ENTRY LIMIT */
   const r = await fetch(API_URL,{
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    action: "canAddEntry",
-    username: currentUser
-  })
-});
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      action:"canAddEntry",
+      username: currentUser
+    })
+  });
+
   const d = await r.json();
+
   if(!d.allowed){
     alert("You have reached your entry limit. Please upgrade.");
     return;
@@ -215,7 +206,7 @@ async function saveEntry(){
     note: note.value
   };
 
-  if(!Object.values(entry).some(v=>Array.isArray(v)?v.length:v)){
+  if(!Object.values(entry).some(v => Array.isArray(v) ? v.length : v)){
     alert("Add something before saving");
     return;
   }

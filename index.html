@@ -3,75 +3,62 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Gratitude Journal — Nurture</title>
+<title>Gratitude Journal</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
+/* ===== GLOBAL ===== */
 body{
   margin:0;
   font-family:Quicksand,system-ui;
   background:#fffaf0;
 }
+
+/* ===== LOGIN BOX ===== */
 #loginBox{
-  max-width:320px;
-  margin:80px auto;
+  max-width:340px;
+  margin:100px auto;
   padding:24px;
   background:#fff;
-  border-radius:12px;
-  box-shadow:0 10px 40px rgba(0,0,0,0.1);
+  border-radius:14px;
+  box-shadow:0 10px 40px rgba(0,0,0,.12);
 }
-#loginBox input, #loginBox button{
+#loginBox input{
   width:100%;
-  padding:10px;
-  margin-bottom:10px;
-}
-#loginBox button{
-  background:#2d7a78;
-  color:white;
-  border:none;
-  border-radius:8px;
-  font-weight:700;
-  cursor:pointer;
-}
-#journal{
-  display:none;
-  max-width:900px;
-  margin:40px auto;
-  padding:24px;
-}
-label{font-weight:700;color:#567;}
-input,textarea{
-  width:100%;
-  padding:10px;
-  margin-bottom:8px;
+  padding:12px;
+  margin-bottom:12px;
   border-radius:8px;
   border:1px solid #ddd;
 }
-.note{min-height:90px}
-button.action{
-  padding:10px 14px;
+#loginBox button{
+  width:100%;
+  padding:12px;
+  background:#2d7a78;
+  color:#fff;
   border:none;
   border-radius:8px;
-  background:#2d7a78;
-  color:white;
-  cursor:pointer;
   font-weight:700;
+  cursor:pointer;
 }
-.footer{
-  margin-top:20px;
-  font-size:13px;
-  color:#777;
+
+/* ===== JOURNAL WRAPPER ===== */
+#journalWrapper{
+  display:none; /* IMPORTANT */
 }
 </style>
 </head>
 
 <body>
 
+<!-- ================= LOGIN ================= -->
 <div id="loginBox">
   <h2>Login</h2>
 
-  <form id="loginForm" method="POST" action="https://script.google.com/macros/s/AKfycbxSHrtdApQFxIlfkY8Di9rSUIl4qi-tqc3DRO35XqjFwS4NOAR6BfChddX6W7H7iTE/exec">
+  <form id="loginForm"
+        method="POST"
+        action="https://script.google.com/macros/s/YOUR_DEPLOYED_SCRIPT_URL/exec">
+
     <input type="hidden" name="action" value="login">
     <input type="hidden" name="passwordHash" id="passwordHash">
 
@@ -81,91 +68,44 @@ button.action{
     <button type="submit">Login</button>
   </form>
 
-  <p id="loginError" style="color:red;"></p>
+  <p id="loginError" style="color:red"></p>
 </div>
 
-<div id="journal">
-  <h1>Gratitude Journal</h1>
+<!-- ================= JOURNAL (YOUR ORIGINAL UI) ================= -->
+<div id="journalWrapper">
 
-  <label>Today's Affirmation</label>
-  <input id="affirm">
+  <!-- 🔴 PASTE YOUR ORIGINAL JOURNAL HTML HERE 🔴 -->
+  <!-- NOTHING inside this div should be changed -->
 
-  <label>3 Good Things</label>
-  <input id="good1"><input id="good2"><input id="good3">
-
-  <label>3 Things You Are Grateful For</label>
-  <input id="gr1"><input id="gr2"><input id="gr3">
-
-  <label>Things To Do</label>
-  <input id="todo1"><input id="todo2"><input id="todo3">
-
-  <label>Tomorrow I Look Forward To</label>
-  <input id="tom1"><input id="tom2"><input id="tom3">
-
-  <label>Note / Reminder</label>
-  <textarea id="note" class="note"></textarea>
-
-  <button class="action" onclick="saveEntry()">Save Entry</button>
-
-  <div class="footer">
-    Entries are saved only on this device. Nothing is uploaded.
-  </div>
 </div>
 
 <script>
-/* HASH PASSWORD BEFORE SUBMIT */
+/* ===== HASH PASSWORD BEFORE SUBMIT ===== */
 document.getElementById("loginForm").addEventListener("submit", async function(e){
   e.preventDefault();
+
   const pw = document.getElementById("password").value;
   const buf = new TextEncoder().encode(pw);
   const hash = await crypto.subtle.digest("SHA-256", buf);
+
   document.getElementById("passwordHash").value =
-    Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,"0")).join("");
+    Array.from(new Uint8Array(hash))
+      .map(b => b.toString(16).padStart(2,"0"))
+      .join("");
+
   e.target.submit();
 });
 
-/* HANDLE LOGIN RESULT */
+/* ===== HANDLE LOGIN RESULT ===== */
 const params = new URLSearchParams(window.location.search);
 
 if(params.get("success")==="1"){
   document.getElementById("loginBox").style.display="none";
-  document.getElementById("journal").style.display="block";
-}
-if(params.get("error")==="1"){
-  document.getElementById("loginError").innerText="Invalid login";
+  document.getElementById("journalWrapper").style.display="block";
 }
 
-/* LOCAL STORAGE */
-function openDb(){
-  return new Promise((res,rej)=>{
-    const r=indexedDB.open("journalDB",1);
-    r.onupgradeneeded=e=>e.target.result.createObjectStore("entries",{keyPath:"id"});
-    r.onsuccess=e=>res(e.target.result);
-    r.onerror=e=>rej(e);
-  });
-}
-async function saveLocal(entry){
-  const db=await openDb();
-  const tx=db.transaction("entries","readwrite");
-  tx.objectStore("entries").put(entry);
-}
-function saveEntry(){
-  const entry={
-    id:Date.now().toString(),
-    createdAt:new Date().toISOString(),
-    affirmation:affirm.value,
-    good:[good1.value,good2.value,good3.value].filter(Boolean),
-    grateful:[gr1.value,gr2.value,gr3.value].filter(Boolean),
-    todo:[todo1.value,todo2.value,todo3.value].filter(Boolean),
-    tomorrow:[tom1.value,tom2.value,tom3.value].filter(Boolean),
-    note:note.value
-  };
-  if(!Object.values(entry).some(v=>Array.isArray(v)?v.length:v)){
-    alert("Add something before saving"); return;
-  }
-  saveLocal(entry);
-  alert("Entry saved");
-  document.querySelectorAll("input,textarea").forEach(i=>i.value="");
+if(params.get("error")==="1"){
+  document.getElementById("loginError").innerText="Invalid login";
 }
 </script>
 

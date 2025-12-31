@@ -5,34 +5,19 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Gratitude Journal — Nurture</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
 
-<!-- ================= ORIGINAL CSS (UNCHANGED) ================= -->
 <style>
 :root{
   --muted:#8aa3a0;
   --primary:#2d7a78;
   --bg:#fffaf0;
-  --sheet-bg:#ffffff;
-  --pill-radius:14px;
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;font-family:Quicksand,system-ui;background:var(--bg);color:#123}
-
-/* PAGE */
-.page{
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  padding:36px 20px;
-}
-.sheet{
-  width:100%;
-  max-width:980px;
-  background:#fff;
-  border-radius:18px;
-  padding:28px;
-  box-shadow:0 18px 60px rgba(6,12,20,0.08);
+body{
+  margin:0;
+  font-family:Quicksand,system-ui;
+  background:var(--bg);
 }
 
 /* LOGIN */
@@ -49,7 +34,7 @@ html,body{height:100%;margin:0;font-family:Quicksand,system-ui;background:var(--
   padding:12px;
   margin-bottom:10px;
   border-radius:10px;
-  border:1px solid #ddd
+  border:1px solid #ddd;
 }
 #loginBox button{
   width:100%;
@@ -62,8 +47,25 @@ html,body{height:100%;margin:0;font-family:Quicksand,system-ui;background:var(--
   cursor:pointer;
 }
 
-/* HEADER */
-.header{display:flex;gap:18px;margin-bottom:18px}
+/* APP */
+#app{display:none}
+.page{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  padding:36px 20px;
+}
+.sheet{
+  width:100%;
+  max-width:980px;
+  background:#fff;
+  border-radius:18px;
+  padding:28px;
+  box-shadow:0 18px 60px rgba(6,12,20,.08);
+}
+.header{
+  margin-bottom:18px;
+}
 .title-main{
   font-family:'Playfair Display',serif;
   font-size:64px;
@@ -72,50 +74,60 @@ html,body{height:100%;margin:0;font-family:Quicksand,system-ui;background:var(--
 }
 .subtitle{color:var(--muted)}
 
-/* GRID */
-.grid{display:grid;grid-template-columns:1fr 360px;gap:20px}
-@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.grid{
+  display:grid;
+  grid-template-columns:1fr 360px;
+  gap:20px;
+}
+@media(max-width:900px){
+  .grid{grid-template-columns:1fr}
+}
 
-.label{font-weight:700;color:var(--muted);margin-bottom:8px}
+.label{
+  font-weight:700;
+  color:var(--muted);
+  margin:12px 0 6px;
+}
 .pill{
   width:100%;
   padding:14px 18px;
-  border-radius:var(--pill-radius);
-  border:0;
-  font-size:16px;
-}
-.pill-blue{background:#e7f3f2}
-.pill-warm{background:#fbe7be}
-.pill-cream{background:#f5f2ec}
-
-.preview-pill{
-  padding:12px;
   border-radius:14px;
-  margin-bottom:10px;
-  background:#e7f3f2;
+  border:none;
+  margin-bottom:8px;
 }
+.blue{background:#e7f3f2}
+.warm{background:#fbe7be}
+.cream{background:#f5f2ec}
+.note{min-height:90px}
 
 .panel{
   background:#fafafa;
   padding:18px;
   border-radius:12px;
-  display:flex;
-  flex-direction:column;
 }
-.entries{margin-top:12px}
+.preview-pill{
+  padding:12px;
+  border-radius:14px;
+  margin-bottom:8px;
+}
 .entry{
   background:#fff;
   border-radius:12px;
   padding:10px;
-  margin-bottom:10px;
+  margin-top:10px;
   font-size:13px;
 }
+small{color:#777}
 
-.actions{display:flex;gap:10px;margin-top:12px}
+.actions{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+}
 .btn{
   padding:10px 14px;
   border-radius:12px;
-  border:0;
+  border:none;
   background:var(--primary);
   color:white;
   font-weight:700;
@@ -124,15 +136,14 @@ html,body{height:100%;margin:0;font-family:Quicksand,system-ui;background:var(--
 .ghost{
   background:transparent;
   color:var(--primary);
-  border:1px solid rgba(45,122,120,0.2);
+  border:1px solid rgba(45,122,120,.3);
 }
-.note{min-height:90px}
 </style>
 </head>
 
 <body>
 
-<!-- ================= LOGIN ================= -->
+<!-- LOGIN -->
 <div id="loginBox">
   <h2>Login</h2>
   <input id="username" placeholder="Username">
@@ -141,58 +152,64 @@ html,body{height:100%;margin:0;font-family:Quicksand,system-ui;background:var(--
   <p id="err" style="color:red"></p>
 </div>
 
-<!-- ================= APP ================= -->
-<div id="app" style="display:none">
+<!-- APP -->
+<div id="app">
 <div class="page">
 <div class="sheet">
 
-  <div class="header">
-    <div>
-      <div class="title-main">GRATITUDE</div>
-      <div class="subtitle">journal · You Matter</div>
-    </div>
-  </div>
+<div class="header">
+  <div class="title-main">GRATITUDE</div>
+  <div class="subtitle">journal · You Matter</div>
+</div>
 
-  <div class="grid">
-    <div>
-      <label class="label">Today's Affirmation</label>
-      <input id="affirm" class="pill pill-blue">
+<div class="grid">
+<div>
 
-      <label class="label">3 Good Things</label>
-      <input id="g1" class="pill pill-warm">
-      <input id="g2" class="pill pill-warm">
-      <input id="g3" class="pill pill-warm">
+<label class="label">Today's Affirmation</label>
+<input id="affirm" class="pill blue">
 
-      <label class="label">3 Things You're Grateful For</label>
-      <input id="gr1" class="pill pill-cream">
-      <input id="gr2" class="pill pill-cream">
-      <input id="gr3" class="pill pill-cream">
+<label class="label">3 Good Things</label>
+<input id="g1" class="pill warm">
+<input id="g2" class="pill warm">
+<input id="g3" class="pill warm">
 
-      <label class="label">Things To Do</label>
-      <input id="t1" class="pill pill-blue">
-      <input id="t2" class="pill pill-blue">
-      <input id="t3" class="pill pill-blue">
+<label class="label">3 Things You're Grateful For</label>
+<input id="gr1" class="pill cream">
+<input id="gr2" class="pill cream">
+<input id="gr3" class="pill cream">
 
-      <label class="label">Tomorrow I Look Forward To</label>
-      <input id="to1" class="pill pill-warm">
-      <input id="to2" class="pill pill-warm">
-      <input id="to3" class="pill pill-warm">
+<label class="label">Things To Do</label>
+<input id="t1" class="pill blue">
+<input id="t2" class="pill blue">
+<input id="t3" class="pill blue">
 
-      <label class="label">Note</label>
-      <textarea id="note" class="pill note"></textarea>
+<label class="label">Tomorrow I Look Forward To</label>
+<input id="to1" class="pill warm">
+<input id="to2" class="pill warm">
+<input id="to3" class="pill warm">
 
-      <div class="actions">
-        <button class="btn" onclick="saveEntry()">Save Entry</button>
-        <button class="ghost" onclick="clearForm()">New</button>
-      </div>
-    </div>
+<label class="label">Note</label>
+<textarea id="note" class="pill note"></textarea>
 
-    <aside class="panel">
-      <strong style="color:var(--muted)">Preview</strong>
-      <div id="preview" class="preview-pill"></div>
-      <div class="entries" id="entryList"></div>
-    </aside>
-  </div>
+<div class="actions">
+  <button class="btn" onclick="saveEntry()">Save Entry</button>
+  <button class="ghost" onclick="clearForm()">New</button>
+</div>
+
+</div>
+
+<aside class="panel">
+  <strong style="color:var(--muted)">Preview</strong>
+
+  <div id="pAff" class="preview-pill blue">Affirmation —</div>
+  <div id="pGood" class="preview-pill warm">Good things —</div>
+  <div id="pGr" class="preview-pill cream">Grateful for —</div>
+  <div id="pTodo" class="preview-pill blue">Things to do —</div>
+  <div id="pTom" class="preview-pill warm">Tomorrow —</div>
+
+  <div id="entryList"></div>
+</aside>
+</div>
 
 </div>
 </div>
@@ -231,14 +248,15 @@ async function login(){
     app.style.display="block";
     loadEntries();
   }else{
-    err.innerText="Invalid login";
+    err.textContent="Invalid login";
   }
 }
 
-/* JOURNAL LOGIC (UNCHANGED) */
+/* STORAGE */
 const getAll=()=>JSON.parse(localStorage.getItem("entries")||"[]");
 const saveAll=d=>localStorage.setItem("entries",JSON.stringify(d));
 
+/* SAVE */
 function saveEntry(){
   const e={
     time:new Date().toLocaleString(),
@@ -253,21 +271,38 @@ function saveEntry(){
   clearForm();loadEntries();
 }
 
+/* LOAD */
 function loadEntries(){
   entryList.innerHTML="";
   const d=getAll();
-  if(d[0]) preview.textContent=d[0].affirmation||"—";
-  d.forEach((e,i)=>{
+  d.forEach(e=>{
     entryList.innerHTML+=`
-    <div class="entry">
-      <small>${e.time}</small><br>
-      ${e.affirmation || ""}
-    </div>`;
+      <div class="entry">
+        <small>${e.time}</small><br>
+        <b>Affirmation:</b> ${e.affirmation || "-"}<br>
+        <b>Good:</b> ${e.good.filter(Boolean).join(", ")}<br>
+        <b>Grateful:</b> ${e.grateful.filter(Boolean).join(", ")}<br>
+        <b>To Do:</b> ${e.todo.filter(Boolean).join(", ")}<br>
+        <b>Tomorrow:</b> ${e.tomorrow.filter(Boolean).join(", ")}
+      </div>`;
   });
 }
 
+/* PREVIEW (LIVE) */
+function updatePreview(){
+  pAff.textContent="Affirmation — "+(affirm.value||"—");
+  pGood.textContent="Good things — "+[g1.value,g2.value,g3.value].filter(Boolean).join(" · ");
+  pGr.textContent="Grateful for — "+[gr1.value,gr2.value,gr3.value].filter(Boolean).join(" · ");
+  pTodo.textContent="Things to do — "+[t1.value,t2.value,t3.value].filter(Boolean).join(" · ");
+  pTom.textContent="Tomorrow — "+[to1.value,to2.value,to3.value].filter(Boolean).join(" · ");
+}
+
+[affirm,g1,g2,g3,gr1,gr2,gr3,t1,t2,t3,to1,to2,to3]
+.forEach(el=>el.addEventListener("input",updatePreview));
+
 function clearForm(){
   document.querySelectorAll("input,textarea").forEach(i=>i.value="");
+  updatePreview();
 }
 </script>
 

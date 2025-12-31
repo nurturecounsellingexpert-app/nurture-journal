@@ -13,8 +13,6 @@ body{
   font-family:Quicksand,system-ui;
   background:#fffaf0;
 }
-
-/* LOGIN */
 #loginBox{
   max-width:360px;
   margin:120px auto;
@@ -23,25 +21,12 @@ body{
   border-radius:14px;
   box-shadow:0 12px 40px rgba(0,0,0,.12);
 }
-#loginBox h2{margin-top:0}
-#loginBox input{
-  width:100%;
-  padding:10px;
-  margin-bottom:10px;
-}
+#loginBox input{width:100%;padding:10px;margin-bottom:10px}
 #loginBox button{
-  width:100%;
-  padding:10px;
-  background:#2d7a78;
-  color:#fff;
-  border:none;
-  border-radius:8px;
-  font-weight:700;
-  cursor:pointer;
+  width:100%;padding:10px;
+  background:#2d7a78;color:#fff;
+  border:none;border-radius:8px;font-weight:700
 }
-#error{color:red;font-size:13px}
-
-/* JOURNAL */
 #app{display:none}
 .container{
   max-width:1100px;
@@ -53,47 +38,20 @@ body{
   grid-template-columns:2fr 1fr;
   gap:24px;
 }
-h1{margin-top:0}
 label{font-weight:700;color:#567}
 input,textarea{
-  width:100%;
-  padding:10px;
-  margin-bottom:8px;
-  border-radius:10px;
-  border:1px solid #ddd;
+  width:100%;padding:10px;margin-bottom:8px;
+  border-radius:10px;border:1px solid #ddd
 }
 textarea{min-height:90px}
 .btn{
-  padding:8px 14px;
-  border:none;
-  border-radius:999px;
-  background:#2d7a78;
-  color:#fff;
-  cursor:pointer;
-  font-weight:700;
+  padding:8px 14px;border:none;border-radius:999px;
+  background:#2d7a78;color:#fff;font-weight:700
 }
-.btn.light{
-  background:#e7f3f2;
-  color:#2d7a78;
-}
-.preview, .entries{
-  background:#f9f9f9;
-  border-radius:14px;
-  padding:16px;
-}
-.entry{
-  background:#fff;
-  border-radius:12px;
-  padding:10px;
-  margin-bottom:10px;
-  font-size:13px;
-}
-.entry small{color:#777}
-.footer{
-  font-size:12px;
-  color:#777;
-  margin-top:10px;
-}
+.btn.light{background:#e7f3f2;color:#2d7a78}
+.preview,.entries{background:#f9f9f9;border-radius:14px;padding:16px}
+.entry{background:#fff;border-radius:12px;padding:10px;margin-bottom:10px;font-size:13px}
+small{color:#777}
 </style>
 </head>
 
@@ -102,24 +60,22 @@ textarea{min-height:90px}
 <!-- LOGIN -->
 <div id="loginBox">
   <h2>Login</h2>
-
-  <input id="username" placeholder="Username" required>
-  <input type="password" id="password" placeholder="Password" required>
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
   <button onclick="login()">Login</button>
-  <div id="error"></div>
+  <p id="err" style="color:red"></p>
 </div>
 
 <!-- APP -->
 <div id="app">
   <div class="container">
-
     <div>
       <h1>Gratitude Journal</h1>
 
       <label>Today's Affirmation</label>
       <input id="affirm">
 
-      <label>3 Good Things</label>
+      <label>3 Good Things Happened Today</label>
       <input id="g1"><input id="g2"><input id="g3">
 
       <label>3 Things You Are Grateful For</label>
@@ -136,84 +92,56 @@ textarea{min-height:90px}
 
       <button class="btn" onclick="saveEntry()">Save Entry</button>
       <button class="btn light" onclick="clearForm()">New</button>
-
-      <div class="footer">
-        Entries are stored only on this device. Nothing is uploaded.
-      </div>
+      <p style="font-size:12px;color:#777">
+        Entries are saved locally on this device only.
+      </p>
     </div>
 
     <div>
-      <div class="preview">
-        <b>Preview</b>
-        <div id="previewText"></div>
-      </div>
-
+      <div class="preview"><b>Preview</b><div id="preview"></div></div>
       <div class="entries">
-        <div>
-          <button class="btn light" onclick="exportAll()">Export All</button>
-          <button class="btn light" onclick="clearLocal()">Clear Local</button>
-        </div>
+        <button class="btn light" onclick="exportAll()">Export All</button>
+        <button class="btn light" onclick="clearLocal()">Clear Local</button>
         <div id="entryList"></div>
       </div>
     </div>
-
   </div>
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbxJhvox0MOAJleXHS6jezMSmOyJztgMaI4yc1bazoe3bAAesFIlJ46D1UvDRzdce3G1/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwpMPheWNYzdudazc_u4ScJeUdyBkLvV9jAd76zhs8T6lyawnKIDg08mn4hUiBo4Il-/exec";
 
-/* LOGIN (FETCH — NO REDIRECT) */
+/* LOGIN */
 async function login(){
-  error.textContent = "";
-
-  const u = username.value.trim();
-  const p = password.value;
-
-  if(!u || !p){ error.textContent="Missing credentials"; return; }
-
-  const hash = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(p)
-  );
-  const passwordHash = [...new Uint8Array(hash)]
-    .map(b=>b.toString(16).padStart(2,"0")).join("");
+  const pw = new TextEncoder().encode(password.value);
+  const hash = await crypto.subtle.digest("SHA-256", pw);
+  const passwordHash = [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,"0")).join("");
 
   const res = await fetch(API_URL,{
     method:"POST",
     body:new URLSearchParams({
       action:"login",
-      username:u,
+      username:username.value,
       passwordHash
     })
   });
 
   const data = await res.json();
-
-  if(data.status==="success"){
-    sessionStorage.setItem("user",u);
+  if(data.ok){
     loginBox.style.display="none";
     app.style.display="block";
     loadEntries();
   }else{
-    error.textContent="Invalid login";
+    err.innerText="Invalid login";
   }
 }
 
-/* AUTO LOGIN IF SESSION EXISTS */
-if(sessionStorage.getItem("user")){
-  loginBox.style.display="none";
-  app.style.display="block";
-  loadEntries();
-}
+/* STORAGE */
+const getAll=()=>JSON.parse(localStorage.getItem("entries")||"[]");
+const saveAll=d=>localStorage.setItem("entries",JSON.stringify(d));
 
-/* LOCAL STORAGE */
-function getAll(){ return JSON.parse(localStorage.getItem("entries")||"[]"); }
-function saveAll(d){ localStorage.setItem("entries",JSON.stringify(d)); }
-
-/* SAVE */
 function saveEntry(){
-  const entry={
+  const e={
     time:new Date().toLocaleString(),
     affirmation:affirm.value,
     good:[g1.value,g2.value,g3.value],
@@ -222,12 +150,9 @@ function saveEntry(){
     tomorrow:[to1.value,to2.value,to3.value],
     note:note.value
   };
-  const d=getAll(); d.unshift(entry); saveAll(d);
-  clearForm(); loadEntries();
+  const d=getAll();d.unshift(e);saveAll(d);
+  clearForm();loadEntries();
 }
-
-/* UI */
-function clearForm(){ document.querySelectorAll("#app input,#app textarea").forEach(i=>i.value=""); }
 
 function loadEntries(){
   entryList.innerHTML="";
@@ -235,11 +160,11 @@ function loadEntries(){
     entryList.innerHTML+=`
       <div class="entry">
         <small>${e.time}</small><br>
-        <b>Affirmation:</b> ${e.affirmation||"-"}<br>
-        <b>Good:</b> ${e.good.filter(Boolean).join(", ")}<br>
-        <b>Grateful:</b> ${e.grateful.filter(Boolean).join(", ")}<br>
-        <b>To Do:</b> ${e.todo.filter(Boolean).join(", ")}<br>
-        <b>Tomorrow:</b> ${e.tomorrow.filter(Boolean).join(", ")}<br>
+        <b>Affirmation:</b> ${e.affirmation}<br>
+        <b>Good:</b> ${e.good.join(", ")}<br>
+        <b>Grateful:</b> ${e.grateful.join(", ")}<br>
+        <b>To Do:</b> ${e.todo.join(", ")}<br>
+        <b>Tomorrow:</b> ${e.tomorrow.join(", ")}<br>
         <button class="btn light" onclick="restore(${i})">Restore</button>
         <button class="btn light" onclick="del(${i})">Delete</button>
       </div>`;
@@ -249,31 +174,25 @@ function loadEntries(){
 function restore(i){
   const e=getAll()[i];
   affirm.value=e.affirmation;
-  [g1,g2,g3]=e.good;
-  [gr1,gr2,gr3]=e.grateful;
-  [t1,t2,t3]=e.todo;
-  [to1,to2,to3]=e.tomorrow;
+  [g1,g2,g3].forEach((el,j)=>el.value=e.good[j]||"");
+  [gr1,gr2,gr3].forEach((el,j)=>el.value=e.grateful[j]||"");
+  [t1,t2,t3].forEach((el,j)=>el.value=e.todo[j]||"");
+  [to1,to2,to3].forEach((el,j)=>el.value=e.tomorrow[j]||"");
   note.value=e.note;
 }
 
-function del(i){
-  const d=getAll(); d.splice(i,1); saveAll(d); loadEntries();
-}
-
+function del(i){const d=getAll();d.splice(i,1);saveAll(d);loadEntries();}
+function clearForm(){document.querySelectorAll("input,textarea").forEach(i=>i.value="")}
 function exportAll(){
-  const blob=new Blob([JSON.stringify(getAll(),null,2)],{type:"application/json"});
   const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="journal.json"; a.click();
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(getAll(),null,2)]));
+  a.download="journal.json";a.click();
 }
-
 function clearLocal(){
   if(confirm("Clear all entries?")){
-    localStorage.removeItem("entries");
-    loadEntries();
+    localStorage.removeItem("entries");loadEntries();
   }
 }
 </script>
-
 </body>
 </html>

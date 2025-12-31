@@ -1,57 +1,122 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Gratitude Journal</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Gratitude Journal — Nurture</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-body{
-  margin:0;
-  font-family:Quicksand,system-ui;
-  background:#fffaf0;
+:root{
+  --muted:#8aa3a0;
+  --primary:#2d7a78;
+  --bg:#fffaf0;
+  --sheet-bg:#ffffff;
+  --pill-radius:14px;
 }
+*{box-sizing:border-box}
+html,body{margin:0;font-family:Quicksand;background:var(--bg)}
+
+.page{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  padding:36px 20px;
+}
+.sheet{
+  width:100%;
+  max-width:980px;
+  background:#fff;
+  border-radius:18px;
+  padding:28px;
+  box-shadow:0 18px 60px rgba(0,0,0,.08);
+}
+
+/* LOGIN */
 #loginBox{
   max-width:360px;
-  margin:120px auto;
+  margin:100px auto;
   padding:24px;
   background:#fff;
   border-radius:14px;
   box-shadow:0 12px 40px rgba(0,0,0,.12);
 }
-#loginBox input{width:100%;padding:10px;margin-bottom:10px}
+#loginBox input{
+  width:100%;
+  padding:12px;
+  margin-bottom:10px;
+  border-radius:10px;
+  border:1px solid #ddd
+}
 #loginBox button{
-  width:100%;padding:10px;
-  background:#2d7a78;color:#fff;
-  border:none;border-radius:8px;font-weight:700
+  width:100%;
+  padding:12px;
+  background:#2d7a78;
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  font-weight:700
 }
-#app{display:none}
-.container{
-  max-width:1100px;
-  margin:40px auto;
-  background:#fff;
-  border-radius:18px;
-  padding:24px;
-  display:grid;
-  grid-template-columns:2fr 1fr;
-  gap:24px;
+
+/* HEADER */
+.header{display:flex;gap:16px;margin-bottom:20px}
+.title-main{
+  font-family:Playfair Display;
+  font-size:52px;
+  color:#7f9a98;
+  letter-spacing:3px
 }
-label{font-weight:700;color:#567}
-input,textarea{
-  width:100%;padding:10px;margin-bottom:8px;
-  border-radius:10px;border:1px solid #ddd
+.subtitle{color:var(--muted)}
+
+/* LAYOUT */
+.grid{display:grid;grid-template-columns:1fr 360px;gap:20px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+
+.label{font-weight:700;color:var(--muted);margin:8px 0}
+.pill{
+  width:100%;padding:14px 18px;border-radius:14px;
+  border:0;background:#f4f6f5;font-size:15px
 }
-textarea{min-height:90px}
+.note{min-height:90px}
+
+.actions{display:flex;gap:10px;margin-top:12px}
 .btn{
-  padding:8px 14px;border:none;border-radius:999px;
-  background:#2d7a78;color:#fff;font-weight:700
+  padding:10px 14px;
+  border-radius:12px;
+  border:0;
+  background:#2d7a78;
+  color:#fff;
+  font-weight:700;
+  cursor:pointer
 }
-.btn.light{background:#e7f3f2;color:#2d7a78}
-.preview,.entries{background:#f9f9f9;border-radius:14px;padding:16px}
-.entry{background:#fff;border-radius:12px;padding:10px;margin-bottom:10px;font-size:13px}
-small{color:#777}
+.ghost{
+  background:transparent;
+  color:#2d7a78;
+  border:1px solid rgba(45,122,120,.2)
+}
+
+.panel{
+  background:#fafafa;
+  border-radius:14px;
+  padding:16px;
+  display:flex;
+  flex-direction:column
+}
+.preview-pill{
+  padding:12px;
+  border-radius:12px;
+  margin-bottom:8px;
+  background:#e7f3f2
+}
+.entries{margin-top:10px;overflow:auto}
+.entry{
+  background:#fff;
+  border-radius:12px;
+  padding:10px;
+  margin-bottom:10px;
+  font-size:13px
+}
 </style>
 </head>
 
@@ -67,67 +132,97 @@ small{color:#777}
 </div>
 
 <!-- APP -->
-<div id="app">
-  <div class="container">
+<div id="app" style="display:none">
+<div class="page">
+<div class="sheet">
+
+  <div class="header">
     <div>
-      <h1>Gratitude Journal</h1>
-
-      <label>Today's Affirmation</label>
-      <input id="affirm">
-
-      <label>3 Good Things Happened Today</label>
-      <input id="g1"><input id="g2"><input id="g3">
-
-      <label>3 Things You Are Grateful For</label>
-      <input id="gr1"><input id="gr2"><input id="gr3">
-
-      <label>Things To Do</label>
-      <input id="t1"><input id="t2"><input id="t3">
-
-      <label>Tomorrow I Look Forward To</label>
-      <input id="to1"><input id="to2"><input id="to3">
-
-      <label>Note / Reminder</label>
-      <textarea id="note"></textarea>
-
-      <button class="btn" onclick="saveEntry()">Save Entry</button>
-      <button class="btn light" onclick="clearForm()">New</button>
-      <p style="font-size:12px;color:#777">
-        Entries are saved locally on this device only.
-      </p>
-    </div>
-
-    <div>
-      <div class="preview"><b>Preview</b><div id="preview"></div></div>
-      <div class="entries">
-        <button class="btn light" onclick="exportAll()">Export All</button>
-        <button class="btn light" onclick="clearLocal()">Clear Local</button>
-        <div id="entryList"></div>
-      </div>
+      <div class="title-main">GRATITUDE</div>
+      <div class="subtitle">journal · You Matter</div>
     </div>
   </div>
+
+  <div class="grid">
+    <div>
+      <label class="label">Today's Affirmation</label>
+      <input id="affirm" class="pill">
+
+      <label class="label">3 Good Things</label>
+      <input id="g1" class="pill">
+      <input id="g2" class="pill">
+      <input id="g3" class="pill">
+
+      <label class="label">3 Things You’re Grateful For</label>
+      <input id="gr1" class="pill">
+      <input id="gr2" class="pill">
+      <input id="gr3" class="pill">
+
+      <label class="label">Things To Do</label>
+      <input id="t1" class="pill">
+      <input id="t2" class="pill">
+      <input id="t3" class="pill">
+
+      <label class="label">Tomorrow I Look Forward To</label>
+      <input id="to1" class="pill">
+      <input id="to2" class="pill">
+      <input id="to3" class="pill">
+
+      <label class="label">Note</label>
+      <textarea id="note" class="pill note"></textarea>
+
+      <div class="actions">
+        <button class="btn" onclick="saveEntry()">Save</button>
+        <button class="btn ghost" onclick="clearForm()">New</button>
+      </div>
+    </div>
+
+    <aside class="panel">
+      <strong style="color:var(--muted)">Preview</strong>
+      <div id="preview" class="preview-pill"></div>
+
+      <div style="margin-top:auto">
+        <button class="ghost" onclick="exportAll()">Export All</button>
+        <button class="ghost" onclick="clearLocal()">Clear Local</button>
+        <div class="entries" id="entryList"></div>
+      </div>
+    </aside>
+  </div>
+
+</div>
+</div>
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbwpMPheWNYzdudazc_u4ScJeUdyBkLvV9jAd76zhs8T6lyawnKIDg08mn4hUiBo4Il-/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwS40hl7YGxsSLjGnY74PfeiKvP8TATXaVfrJVEpHK5nYhC8W6RQHHsKpPc_Qgqiehz/exec";
+
+/* SESSION */
+if(localStorage.getItem("loggedIn")==="1"){
+  loginBox.style.display="none";
+  app.style.display="block";
+  loadEntries();
+}
 
 /* LOGIN */
 async function login(){
-  const pw = new TextEncoder().encode(password.value);
-  const hash = await crypto.subtle.digest("SHA-256", pw);
-  const passwordHash = [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,"0")).join("");
+  err.innerText="";
+  const enc=new TextEncoder().encode(password.value);
+  const hash=await crypto.subtle.digest("SHA-256",enc);
+  const passwordHash=[...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,"0")).join("");
 
-  const res = await fetch(API_URL,{
+  const res=await fetch(API_URL,{
     method:"POST",
+    headers:{"Content-Type":"application/x-www-form-urlencoded"},
     body:new URLSearchParams({
       action:"login",
-      username:username.value,
+      username:username.value.trim(),
       passwordHash
     })
   });
 
-  const data = await res.json();
+  const data=await res.json();
   if(data.ok){
+    localStorage.setItem("loggedIn","1");
     loginBox.style.display="none";
     app.style.display="block";
     loadEntries();
@@ -156,18 +251,17 @@ function saveEntry(){
 
 function loadEntries(){
   entryList.innerHTML="";
-  getAll().forEach((e,i)=>{
+  const d=getAll();
+  if(d[0]) preview.innerText=d[0].affirmation||"—";
+  d.forEach((e,i)=>{
     entryList.innerHTML+=`
-      <div class="entry">
-        <small>${e.time}</small><br>
-        <b>Affirmation:</b> ${e.affirmation}<br>
-        <b>Good:</b> ${e.good.join(", ")}<br>
-        <b>Grateful:</b> ${e.grateful.join(", ")}<br>
-        <b>To Do:</b> ${e.todo.join(", ")}<br>
-        <b>Tomorrow:</b> ${e.tomorrow.join(", ")}<br>
-        <button class="btn light" onclick="restore(${i})">Restore</button>
-        <button class="btn light" onclick="del(${i})">Delete</button>
-      </div>`;
+    <div class="entry">
+      <small>${e.time}</small><br>
+      ${e.affirmation}
+      <br>
+      <button class="ghost" onclick="restore(${i})">Restore</button>
+      <button class="ghost" onclick="del(${i})">Delete</button>
+    </div>`;
   });
 }
 
@@ -194,5 +288,6 @@ function clearLocal(){
   }
 }
 </script>
+
 </body>
 </html>

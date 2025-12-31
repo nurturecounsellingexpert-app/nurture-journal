@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Gratitude Journal — Nurture</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
 body{
@@ -19,7 +19,7 @@ body{
   max-width:320px;
   margin:80px auto;
   padding:24px;
-  background:white;
+  background:#fff;
   border-radius:12px;
   box-shadow:0 10px 40px rgba(0,0,0,0.1);
 }
@@ -38,14 +38,13 @@ body{
   font-weight:700;
   cursor:pointer;
 }
-#loginError{ color:red; }
 
 /* JOURNAL */
 #journal{
   display:none;
-  padding:30px;
   max-width:900px;
-  margin:auto;
+  margin:40px auto;
+  padding:24px;
 }
 label{font-weight:700;color:#567;}
 input,textarea{
@@ -55,6 +54,7 @@ input,textarea{
   border-radius:8px;
   border:1px solid #ddd;
 }
+.note{min-height:90px}
 button.action{
   padding:10px 14px;
   border:none;
@@ -64,8 +64,11 @@ button.action{
   cursor:pointer;
   font-weight:700;
 }
-.note{min-height:90px}
-.footer{margin-top:20px;color:#777;font-size:13px}
+.footer{
+  margin-top:20px;
+  font-size:13px;
+  color:#777;
+}
 </style>
 </head>
 
@@ -74,14 +77,23 @@ button.action{
 <!-- LOGIN -->
 <div id="loginBox">
   <h2>Login</h2>
-  <input id="username" placeholder="Username">
-  <input id="password" type="password" placeholder="Password">
-  <button onclick="login()">Login</button>
-  <p id="loginError"></p>
+
+  <form id="loginForm" method="POST" action="https://script.google.com/macros/s/AKfycbyWGuraxQKEe_pNSY8vYMmnTW6Cst5CQtd1y_NXxw3_61tOXRm7ox4L-BpP1UzYTxuU/exec">
+    <input type="hidden" name="action" value="login">
+    <input type="hidden" name="passwordHash" id="passwordHash">
+
+    <input name="username" id="username" placeholder="Username" required>
+    <input type="password" id="password" placeholder="Password" required>
+
+    <button type="submit">Login</button>
+  </form>
+
+  <p id="loginError" style="color:red;"></p>
 </div>
 
 <!-- JOURNAL -->
 <div id="journal">
+
 <h1>Gratitude Journal</h1>
 
 <label>Today's Affirmation</label>
@@ -105,59 +117,36 @@ button.action{
 <button class="action" onclick="saveEntry()">Save Entry</button>
 
 <div class="footer">
-  Your entries are stored only on this device. Nothing is uploaded.
+  Entries are saved only on this device. Nothing is uploaded.
 </div>
+
 </div>
 
 <script>
-/* ================= CONFIG ================= */
-const API_URL = "https://script.google.com/macros/s/AKfycbyWGuraxQKEe_pNSY8vYMmnTW6Cst5CQtd1y_NXxw3_61tOXRm7ox4L-BpP1UzYTxuU/exec";
-let currentUser = null;
-
-/* ================= PASSWORD HASH ================= */
-async function sha256(text){
-  const buf = new TextEncoder().encode(text);
+/* ================= PASSWORD HASH BEFORE SUBMIT ================= */
+document.getElementById("loginForm").addEventListener("submit", async function(e){
+  e.preventDefault();
+  const pw = document.getElementById("password").value;
+  const buf = new TextEncoder().encode(pw);
   const hash = await crypto.subtle.digest("SHA-256", buf);
-  return Array.from(new Uint8Array(hash))
-    .map(b => b.toString(16).padStart(2,"0"))
-    .join("");
+  document.getElementById("passwordHash").value =
+    Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,"0")).join("");
+  e.target.submit();
+});
+
+/* ================= HANDLE REDIRECT FLAGS ================= */
+const params = new URLSearchParams(window.location.search);
+
+if(params.get("success")==="1"){
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("journal").style.display="block";
 }
 
-/* ================= LOGIN ================= */
-async function login(){
-  const u = username.value.trim();
-  const p = password.value.trim();
-  loginError.innerText = "";
-
-  if(!u || !p){
-    loginError.innerText = "Enter username and password";
-    return;
-  }
-
-  const form = new FormData();
-  form.append("action","login");
-  form.append("username",u);
-  form.append("passwordHash", await sha256(p));
-
-  try{
-    const res = await fetch(API_URL,{ method:"POST", body:form });
-    const data = await res.json();
-
-    if(!data.success){
-      loginError.innerText = "Invalid login";
-      return;
-    }
-
-    currentUser = u;
-    loginBox.style.display = "none";
-    journal.style.display = "block";
-  }catch(err){
-    console.error(err);
-    alert("Login failed");
-  }
+if(params.get("error")==="1"){
+  document.getElementById("loginError").innerText="Invalid login";
 }
 
-/* ================= LOCAL STORAGE ================= */
+/* ================= LOCAL STORAGE (IndexedDB) ================= */
 function openDb(){
   return new Promise((res,rej)=>{
     const r = indexedDB.open("journalDB",1);
@@ -175,19 +164,7 @@ async function saveLocal(entry){
 }
 
 /* ================= SAVE ENTRY ================= */
-async function saveEntry(){
-  const form = new FormData();
-  form.append("action","canAddEntry");
-  form.append("username",currentUser);
-
-  const r = await fetch(API_URL,{ method:"POST", body:form });
-  const d = await r.json();
-
-  if(!d.allowed){
-    alert("Entry limit reached. Please upgrade.");
-    return;
-  }
-
+function saveEntry(){
   const entry = {
     id: Date.now().toString(),
     createdAt: new Date().toISOString(),
@@ -204,7 +181,7 @@ async function saveEntry(){
     return;
   }
 
-  await saveLocal(entry);
+  saveLocal(entry);
   alert("Entry saved");
   document.querySelectorAll("input,textarea").forEach(i=>i.value="");
 }

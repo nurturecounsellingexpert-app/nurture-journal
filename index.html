@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Gratitude Journal — Nurture</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gratitude Journal — Nurture</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
 
@@ -11,271 +11,302 @@
 body{
   margin:0;
   font-family:Quicksand,system-ui;
-  background:#fff7ea;
+  background:#fff7e8;
 }
-.wrapper{
-  max-width:1100px;
-  margin:40px auto;
+.container{
+  max-width:1200px;
+  margin:30px auto;
   background:#fff;
-  border-radius:20px;
+  border-radius:16px;
   padding:30px;
+  box-shadow:0 20px 50px rgba(0,0,0,.08);
   display:grid;
-  grid-template-columns: 1fr 320px;
-  gap:30px;
+  grid-template-columns:2fr 1fr;
+  gap:24px;
 }
 h1{
-  font-weight:700;
-  letter-spacing:1px;
+  font-size:36px;
+  margin:0 0 6px;
+}
+.subtitle{
+  color:#999;
+  margin-bottom:20px;
 }
 label{
   font-weight:600;
-  color:#678;
   margin-top:14px;
   display:block;
 }
-input,textarea{
+input, textarea{
   width:100%;
   padding:12px;
   border-radius:12px;
   border:0;
+  margin-top:6px;
   background:#f3f3f3;
-  margin-bottom:10px;
 }
-.group-yellow input{ background:#fde9be; }
-.group-green input{ background:#dbf1ed; }
-.note{ min-height:90px; resize:vertical; }
-
-.row-2{
+.good{background:#fde8b9;}
+.todo{background:#d9efec;}
+.tomorrow{background:#fde2a7;}
+.note{min-height:100px;}
+.grid2{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:12px;
-}
-
-.actions{
-  display:flex;
-  gap:10px;
-  margin-top:10px;
 }
 button{
   padding:10px 14px;
   border-radius:20px;
   border:0;
-  cursor:pointer;
+  background:#2d7a78;
+  color:#fff;
   font-weight:600;
+  cursor:pointer;
 }
-.save{ background:#2d7a78; color:#fff; }
-.secondary{ background:#eef; }
-
-.preview{
+.secondary{
+  background:#fff;
+  color:#2d7a78;
+  border:1px solid #cde;
+}
+.actions{
+  margin-top:16px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.preview, .entries{
   background:#fafafa;
-  border-radius:16px;
   padding:16px;
+  border-radius:16px;
 }
-.preview h3{ margin-top:0; }
-.pill{
-  padding:10px;
-  border-radius:12px;
-  margin-bottom:8px;
-  font-size:14px;
-}
-.p-green{ background:#dbf1ed; }
-.p-yellow{ background:#fde9be; }
-.p-gray{ background:#eee; }
-
-.entries{
-  margin-top:20px;
-  font-size:13px;
-}
-.entry{
-  background:#f7f7f7;
+.preview h3, .entries h3{margin-top:0}
+.preview div{
   padding:10px;
   border-radius:10px;
   margin-bottom:8px;
 }
-.entry small{ color:#777; display:block; }
-.entry button{
-  font-size:12px;
-  margin-right:6px;
+.p-affirm{background:#d9efec}
+.p-good{background:#fde8b9}
+.p-grateful{background:#f3efe6}
+.p-todo{background:#d9efec}
+.p-tomorrow{background:#fde2a7}
+.entry{
+  background:#fff;
+  border-radius:14px;
+  padding:12px;
+  margin-bottom:12px;
 }
-
+.entry small{color:#888}
+.entry-actions{
+  margin-top:6px;
+}
+.entry-actions button{
+  font-size:12px;
+  padding:6px 10px;
+}
 .footer{
-  margin-top:10px;
   font-size:12px;
   color:#777;
+  margin-top:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="wrapper">
+<div class="container">
 
 <!-- LEFT -->
 <div>
-
-<h1>GRATITUDE <span style="font-weight:400;font-size:16px">journal</span></h1>
-<p style="color:#9aa">You Matter — Daily reflection</p>
+<h1>GRATITUDE <span style="font-size:18px;color:#999">journal</span></h1>
+<div class="subtitle">You Matter — Daily reflection</div>
 
 <label>Today's Affirmation</label>
 <input id="affirm">
 
 <label>3 Good Things Happened Today</label>
-<div class="group-yellow">
-  <input id="g1"><input id="g2"><input id="g3">
-</div>
+<input class="good" id="good1">
+<input class="good" id="good2">
+<input class="good" id="good3">
 
 <label>3 Things You Are Grateful For</label>
-<div class="group-gray">
-  <input id="gr1"><input id="gr2"><input id="gr3">
-</div>
+<input id="gr1">
+<input id="gr2">
+<input id="gr3">
 
-<div class="row-2">
-  <div class="group-green">
-    <label>Things To Do</label>
-    <input id="t1"><input id="t2"><input id="t3">
-  </div>
-  <div class="group-yellow">
-    <label>Tomorrow I Look Forward To</label>
-    <input id="tm1"><input id="tm2"><input id="tm3">
-  </div>
+<div class="grid2">
+<div>
+<label>Things To Do</label>
+<input class="todo" id="todo1">
+<input class="todo" id="todo2">
+<input class="todo" id="todo3">
+</div>
+<div>
+<label>Tomorrow I Look Forward To</label>
+<input class="tomorrow" id="tom1">
+<input class="tomorrow" id="tom2">
+<input class="tomorrow" id="tom3">
+</div>
 </div>
 
 <label>Note / Reminder</label>
-<textarea id="note" class="note" placeholder="Write any note or reminder..."></textarea>
+<textarea class="note" id="note"></textarea>
 
 <div class="actions">
-  <button class="save" onclick="saveEntry()">Save Entry</button>
-  <button class="secondary" onclick="newEntry()">New</button>
-  <button class="secondary" onclick="exportAll()">Export (.json)</button>
-  <button class="secondary" onclick="importData()">Import</button>
+<button onclick="saveEntry()">Save Entry</button>
+<button class="secondary" onclick="clearForm()">New</button>
+<button class="secondary" onclick="exportJSON()">Export (.json)</button>
+<button class="secondary" onclick="importJSON()">Import</button>
 </div>
 
 <div class="footer">
-Tip: Your entries are stored only on this device. Nothing is uploaded or shared.
+Your entries are stored only on this device. Nothing is uploaded or shared.
 </div>
-
 </div>
 
 <!-- RIGHT -->
+<div>
 <div class="preview">
-
 <h3>Preview</h3>
-<div class="pill p-green" id="pAff">Affirmation —</div>
-<div class="pill p-yellow" id="pGood">Good things —</div>
-<div class="pill p-gray" id="pGrat">Grateful for —</div>
-<div class="pill p-green" id="pTodo">Things To Do —</div>
-<div class="pill p-yellow" id="pTom">Tomorrow —</div>
-
-<hr>
-
-<div style="text-align:right">
-  <button class="secondary" onclick="clearAll()">Clear Local</button>
+<div class="p-affirm" id="pAff"></div>
+<div class="p-good" id="pGood"></div>
+<div class="p-grateful" id="pGrat"></div>
+<div class="p-todo" id="pTodo"></div>
+<div class="p-tomorrow" id="pTom"></div>
 </div>
 
-<div class="entries" id="entries"></div>
-
+<div class="entries">
+<h3>Saved Entries</h3>
+<div id="entries"></div>
+<button class="secondary" onclick="clearAll()">Clear Local</button>
 </div>
+</div>
+
 </div>
 
 <script>
-const $ = id => document.getElementById(id);
+const dbName="journalDB";
+let db;
 
-/* LIVE PREVIEW */
-document.querySelectorAll("input,textarea").forEach(i=>{
-  i.addEventListener("input",()=>{
-    $("pAff").innerText = "Affirmation — " + $("affirm").value;
-    $("pGood").innerText = "Good things — " + [g1.value,g2.value,g3.value].filter(Boolean).join(", ");
-    $("pGrat").innerText = "Grateful for — " + [gr1.value,gr2.value,gr3.value].filter(Boolean).join(", ");
-    $("pTodo").innerText = "Things To Do — " + [t1.value,t2.value,t3.value].filter(Boolean).join(", ");
-    $("pTom").innerText = "Tomorrow — " + [tm1.value,tm2.value,tm3.value].filter(Boolean).join(", ");
-  });
-});
-
-/* STORAGE */
-function loadAll(){
-  return JSON.parse(localStorage.getItem("entries")||"[]");
+function openDB(){
+  return new Promise(res=>{
+    const r=indexedDB.open(dbName,1);
+    r.onupgradeneeded=e=>{
+      e.target.result.createObjectStore("entries",{keyPath:"id"});
+    };
+    r.onsuccess=e=>{db=e.target.result;res();}
+  })
 }
-function saveAll(d){
-  localStorage.setItem("entries",JSON.stringify(d));
-  renderEntries();
-}
+openDB().then(loadEntries);
 
-/* SAVE */
-function saveEntry(){
-  const entry={
+function getEntry(){
+  return{
     id:Date.now(),
     time:new Date().toLocaleString(),
-    affirm:affirm.value,
-    good:[g1.value,g2.value,g3.value],
-    grat:[gr1.value,gr2.value,gr3.value],
-    todo:[t1.value,t2.value,t3.value],
-    tom:[tm1.value,tm2.value,tm3.value],
+    affirmation:affirm.value,
+    good:[good1.value,good2.value,good3.value],
+    grateful:[gr1.value,gr2.value,gr3.value],
+    todo:[todo1.value,todo2.value,todo3.value],
+    tomorrow:[tom1.value,tom2.value,tom3.value],
     note:note.value
-  };
-  const all=loadAll();
-  all.unshift(entry);
-  saveAll(all);
-  newEntry();
-}
-
-/* RENDER LIST */
-function renderEntries(){
-  const box=$("entries");
-  box.innerHTML="";
-  loadAll().forEach(e=>{
-    const d=document.createElement("div");
-    d.className="entry";
-    d.innerHTML=`
-      <small>${e.time}</small>
-      Affirmation: ${e.affirm}<br>
-      <button onclick="restore(${e.id})">Restore</button>
-      <button onclick="del(${e.id})">Delete</button>
-    `;
-    box.appendChild(d);
-  });
-}
-
-/* ACTIONS */
-function restore(id){
-  const e=loadAll().find(x=>x.id===id);
-  if(!e) return;
-  affirm.value=e.affirm;
-  [g1,g2,g3].forEach((i,n)=>i.value=e.good[n]||"");
-  [gr1,gr2,gr3].forEach((i,n)=>i.value=e.grat[n]||"");
-  [t1,t2,t3].forEach((i,n)=>i.value=e.todo[n]||"");
-  [tm1,tm2,tm3].forEach((i,n)=>i.value=e.tom[n]||"");
-  note.value=e.note;
-}
-function del(id){
-  saveAll(loadAll().filter(x=>x.id!==id));
-}
-function clearAll(){
-  if(confirm("Clear all local entries?")){
-    localStorage.removeItem("entries");
-    renderEntries();
   }
 }
-function exportAll(){
-  const blob=new Blob([JSON.stringify(loadAll(),null,2)],{type:"application/json"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="gratitude-journal.json";
-  a.click();
+
+function saveEntry(){
+  const e=getEntry();
+  const tx=db.transaction("entries","readwrite");
+  tx.objectStore("entries").put(e);
+  tx.oncomplete=loadEntries;
+  clearForm();
 }
-function importData(){
+
+function loadEntries(){
+  entries.innerHTML="";
+  const tx=db.transaction("entries");
+  tx.objectStore("entries").openCursor(null,"prev").onsuccess=e=>{
+    const c=e.target.result;
+    if(!c)return;
+    const d=c.value;
+    entries.innerHTML+=`
+      <div class="entry">
+        <small>${d.time}</small>
+        <div><b>Affirmation:</b> ${d.affirmation}</div>
+        <div><b>Good:</b> ${d.good.filter(x=>x).join(", ")}</div>
+        <div><b>Grateful:</b> ${d.grateful.filter(x=>x).join(", ")}</div>
+        <div><b>To Do:</b> ${d.todo.filter(x=>x).join(", ")}</div>
+        <div><b>Tomorrow:</b> ${d.tomorrow.filter(x=>x).join(", ")}</div>
+        <div><b>Note:</b> ${d.note}</div>
+        <div class="entry-actions">
+          <button onclick="restore(${d.id})">Restore</button>
+          <button onclick="del(${d.id})">Delete</button>
+        </div>
+      </div>`;
+    c.continue();
+  }
+}
+
+function restore(id){
+  const tx=db.transaction("entries");
+  tx.objectStore("entries").get(id).onsuccess=e=>{
+    const d=e.target.result;
+    affirm.value=d.affirmation;
+    [good1.value,good2.value,good3.value]=d.good;
+    [gr1.value,gr2.value,gr3.value]=d.grateful;
+    [todo1.value,todo2.value,todo3.value]=d.todo;
+    [tom1.value,tom2.value,tom3.value]=d.tomorrow;
+    note.value=d.note;
+  }
+}
+function del(id){
+  const tx=db.transaction("entries","readwrite");
+  tx.objectStore("entries").delete(id);
+  tx.oncomplete=loadEntries;
+}
+function clearAll(){
+  const tx=db.transaction("entries","readwrite");
+  tx.objectStore("entries").clear();
+  tx.oncomplete=loadEntries;
+}
+function clearForm(){
+  document.querySelectorAll("input,textarea").forEach(i=>i.value="");
+}
+
+function exportJSON(){
+  const tx=db.transaction("entries");
+  tx.objectStore("entries").getAll().onsuccess=e=>{
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(new Blob([JSON.stringify(e.target.result,null,2)]));
+    a.download="journal.json";
+    a.click();
+  }
+}
+function importJSON(){
   const i=document.createElement("input");
   i.type="file";
   i.onchange=()=>{
     const r=new FileReader();
-    r.onload=()=>saveAll(JSON.parse(r.result));
+    r.onload=()=>{
+      const data=JSON.parse(r.result);
+      const tx=db.transaction("entries","readwrite");
+      data.forEach(d=>tx.objectStore("entries").put(d));
+      tx.oncomplete=loadEntries;
+    };
     r.readAsText(i.files[0]);
   };
   i.click();
 }
-function newEntry(){
-  document.querySelectorAll("input,textarea").forEach(i=>i.value="");
+
+/* LIVE PREVIEW */
+["affirm","good1","good2","good3","gr1","todo1","tom1"].forEach(id=>{
+  document.getElementById(id).addEventListener("input",updatePreview)
+});
+function updatePreview(){
+  pAff.innerText="Affirmation — "+affirm.value;
+  pGood.innerText="Good things — "+[good1.value,good2.value,good3.value].filter(x=>x).join(", ");
+  pGrat.innerText="Grateful for — "+[gr1.value,gr2.value,gr3.value].filter(x=>x).join(", ");
+  pTodo.innerText="Things To Do — "+[todo1.value,todo2.value,todo3.value].filter(x=>x).join(", ");
+  pTom.innerText="Tomorrow — "+[tom1.value,tom2.value,tom3.value].filter(x=>x).join(", ");
 }
-renderEntries();
 </script>
 
 </body>

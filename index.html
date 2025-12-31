@@ -78,19 +78,10 @@ button.action{
 <div id="loginBox">
   <h2>Login</h2>
 
-  <form id="loginForm"
-        method="POST"
-        action="https://script.google.com/macros/s/AKfycbxpXHwiUp0HI9OXUJNiHVz6ZWsTPyNGuJquhfKvmO6YwqPHbEn2aMCl-fFkMuVOX9VP/exec">
+  <input id="username" placeholder="Username">
+  <input type="password" id="password" placeholder="Password">
 
-    <input type="hidden" name="action" value="login">
-    <input type="hidden" name="passwordHash" id="passwordHash">
-
-    <input name="username" id="username" placeholder="Username" required>
-    <input type="password" id="password" placeholder="Password" required>
-
-    <button type="submit">Login</button>
-  </form>
-
+  <button onclick="login()">Login</button>
   <p id="loginError" style="color:red;"></p>
 </div>
 
@@ -134,35 +125,53 @@ button.action{
 </div>
 
 <script>
-/* HASH PASSWORD BEFORE SUBMIT */
-document.getElementById("loginForm").addEventListener("submit", async function(e){
-  e.preventDefault();
+/* ================= CONFIG ================= */
+const API_URL = "https://script.google.com/macros/s/AKfycbxpXHwiUp0HI9OXUJNiHVz6ZWsTPyNGuJquhfKvmO6YwqPHbEn2aMCl-fFkMuVOX9VP/exec";
+let currentUser = null;
 
-  const pw = document.getElementById("password").value;
-  const buf = new TextEncoder().encode(pw);
+/* ================= HASH ================= */
+async function sha256(text){
+  const buf = new TextEncoder().encode(text);
   const hash = await crypto.subtle.digest("SHA-256", buf);
-
-  document.getElementById("passwordHash").value =
-    Array.from(new Uint8Array(hash))
-      .map(b => b.toString(16).padStart(2,"0"))
-      .join("");
-
-  e.target.submit();
-});
-
-/* HANDLE LOGIN RESULT */
-const params = new URLSearchParams(window.location.search);
-
-if (params.get("success") === "1") {
-  document.getElementById("loginBox").style.display = "none";
-  document.getElementById("journal").style.display = "block";
+  return Array.from(new Uint8Array(hash))
+    .map(b => b.toString(16).padStart(2,"0"))
+    .join("");
 }
 
-if (params.get("error") === "1") {
-  document.getElementById("loginError").innerText = "Invalid login";
+/* ================= LOGIN ================= */
+async function login(){
+  const u = document.getElementById("username").value.trim();
+  const p = document.getElementById("password").value.trim();
+  const err = document.getElementById("loginError");
+
+  if(!u || !p){
+    err.innerText = "Enter username and password";
+    return;
+  }
+
+  const res = await fetch(API_URL,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      action:"login",
+      username:u,
+      passwordHash: await sha256(p)
+    })
+  });
+
+  const data = await res.json();
+
+  if(!data.success){
+    err.innerText = "Invalid login";
+    return;
+  }
+
+  currentUser = u;
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("journal").style.display="block";
 }
 
-/* LOCAL STORAGE (IndexedDB) */
+/* ================= LOCAL STORAGE ================= */
 function openDb(){
   return new Promise((res,rej)=>{
     const r = indexedDB.open("journalDB",1);
@@ -179,8 +188,24 @@ async function saveLocal(entry){
   tx.objectStore("entries").put(entry);
 }
 
-/* SAVE ENTRY */
-function saveEntry(){
+/* ================= SAVE ENTRY ================= */
+async function saveEntry(){
+
+  const r = await fetch(API_URL,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      action:"limit",
+      username: currentUser
+    })
+  });
+
+  const d = await r.json();
+  if(!d.allowed){
+    alert("You have reached your entry limit. Please upgrade.");
+    return;
+  }
+
   const entry = {
     id: Date.now().toString(),
     createdAt: new Date().toISOString(),
@@ -197,7 +222,7 @@ function saveEntry(){
     return;
   }
 
-  saveLocal(entry);
+  await saveLocal(entry);
   alert("Entry saved");
   document.querySelectorAll("input,textarea").forEach(i=>i.value="");
 }
